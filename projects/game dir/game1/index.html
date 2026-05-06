@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cube Runner</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; font-size: 24px; }
+        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="ui">Score: <span id="score">0</span></div>
+    <div id="msg">GAME OVER!<br><button onclick="location.reload()" style="font-size: 24px; padding: 10px 20px; cursor: pointer;">Restart</button></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, player, obstacles = [], score = 0, gameActive = true;
+        const playerSpeed = 0.2;
+        const obstacleSpeed = 0.2;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x111122);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(0, 10, 10);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            player = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0x00ff00 }));
+            player.position.y = 0.5;
+            scene.add(player);
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 1000), new THREE.MeshPhongMaterial({ color: 0x222222 }));
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            camera.position.set(0, 5, 10);
+            camera.lookAt(0, 0, 0);
+
+            window.addEventListener('keydown', handleInput);
+            spawnObstacle();
+            animate();
+        }
+
+        function handleInput(e) {
+            if (!gameActive) return;
+            if (e.key === 'ArrowLeft' && player.position.x > -4.5) player.position.x -= 1;
+            if (e.key === 'ArrowRight' && player.position.x < 4.5) player.position.x += 1;
+        }
+
+        function spawnObstacle() {
+            if (!gameActive) return;
+            const obs = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+            obs.position.set(Math.floor(Math.random() * 9) - 4, 0.5, -50);
+            scene.add(obs);
+            obstacles.push(obs);
+            setTimeout(spawnObstacle, 1000);
+        }
+
+        function animate() {
+            if (!gameActive) return;
+            requestAnimationFrame(animate);
+
+            obstacles.forEach((obs, index) => {
+                obs.position.z += obstacleSpeed;
+                if (obs.position.z > 10) {
+                    scene.remove(obs);
+                    obstacles.splice(index, 1);
+                    score++;
+                    document.getElementById('score').innerText = score;
+                }
+                if (player.position.distanceTo(obs.position) < 1) {
+                    gameActive = false;
+                    document.getElementById('msg').style.display = 'block';
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>

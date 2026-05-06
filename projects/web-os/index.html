@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elysium Web OS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="desktop" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');">
+        <div id="app-grid">
+            <div class="app-icon" onclick="openApp('game1')">
+                <img src="https://cdn-icons-png.flaticon.com/512/686/686587.png" alt="Game 1">
+                <span>Cube Runner</span>
+            </div>
+            <div class="app-icon" onclick="openApp('game2')">
+                <img src="https://cdn-icons-png.flaticon.com/512/3062/3062313.png" alt="Game 2">
+                <span>Ball Balance</span>
+            </div>
+            <div class="app-icon" onclick="openApp('game3')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1055/1055644.png" alt="Game 3">
+                <span>Target Shoot</span>
+            </div>
+            <div class="app-icon" onclick="openApp('surprise')">
+                <img src="https://cdn-icons-png.flaticon.com/512/1162/1162456.png" alt="Surprise">
+                <span>The Void</span>
+            </div>
+            <div class="app-icon" onclick="openApp('settings')">
+                <img src="https://cdn-icons-png.flaticon.com/512/2040/2040504.png" alt="Settings">
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <div id="window-container"></div>
+
+        <div id="taskbar">
+            <div id="start-btn">🚀</div>
+            <div id="running-apps"></div>
+            <div id="clock"></div>
+        </div>
+    </div>
+
+    <div id="start-menu" class="hidden">
+        <div class="start-item" onclick="changeWallpaper('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80')">Nature Wallpaper</div>
+        <div class="start-item" onclick="changeWallpaper('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80')">Space Wallpaper</div>
+        <div class="start-item" onclick="changeWallpaper('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80')">Mountain Wallpaper</div>
+        <hr>
+        <div class="start-item" onclick="location.reload()">Restart OS</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

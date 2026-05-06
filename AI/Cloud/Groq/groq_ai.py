@@ -4,9 +4,11 @@ Elysium AI Agent — unified core for Groq (Cloud) and Ollama (Local)
 
 from langchain_groq.chat_models import ChatGroq
 from langchain_ollama.chat_models import ChatOllama
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import MemorySaver
 from Elysium_Config.Ai.config_groq import GROQ_API
+from Elysium_Config.Ai.config_google import GOOGLE_API_KEY
 from langchain.tools import tool
 from AI.Tools.email import send_email
 from AI.Tools.file_ops import (
@@ -23,13 +25,16 @@ from AI.Tools.file_ops import (
 
 
 # ── Available Models (ranked by capability) ──────────────────────
-# 1. meta-llama/llama-4-scout-17b-16e-instruct  — best tool calling, fast
-# 2. llama-3.3-70b-versatile                     — strongest reasoning
-# 3. openai/gpt-oss-120b                         — large but slow, weak tool use
-# 4. qwen/qwen3-32b                              — good reasoning, tool calling issues on Groq
-# 5. llama-3.1-8b-instant                        — fastest, least capable
+# 1. gemma-4-31b-it                                — Gemma 4, 256K context, best reasoning
+# 2. gemma-4-26b-a4b-it                            — Gemma 4, smaller MoE
+# 3. meta-llama/llama-4-scout-17b-16e-instruct    — best tool calling, fast
+# 4. llama-3.3-70b-versatile                      — strongest reasoning
+# 5. openai/gpt-oss-120b                          — large but slow, weak tool use
+# 6. qwen/qwen3-32b                               — good reasoning, tool calling issues on Groq
+# 7. llama-3.1-8b-instant                         — fastest, least capable
 
-AGENT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+AGENT_MODEL = "gemma-4-31b-it"
+AGENT_PROVIDER = "google"
 
 
 # ── Tools ────────────────────────────────────────────────────────
@@ -150,13 +155,13 @@ class Agent:
     """Elysium AI Agent with conversation memory."""
 
     def __init__(self):
-        self.provider = "groq"
+        self.provider = AGENT_PROVIDER
         self.model_name = AGENT_MODEL
-        
+
         # In-memory conversation store — persists across requests
         self.memory = MemorySaver()
         self._default_thread = "elysium-main"
-        
+
         self._build_agent()
 
     def _build_agent(self):
@@ -173,7 +178,14 @@ class Agent:
             self.model = ChatOllama(
                 model=self.model_name,
                 temperature=0.6,
-                base_url="http://localhost:11434"
+                base_url="http://localhost:11434",
+            )
+        elif self.provider == "google":
+            self.model = ChatGoogleGenerativeAI(
+                model=self.model_name,
+                google_api_key=GOOGLE_API_KEY,
+                temperature=0.6,
+                max_tokens=4096,
             )
         else:
             raise ValueError(f"Unknown provider: {self.provider}")

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ball Balance</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #222; color: white; font-family: sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; font-size: 24px; }
+        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="ui">Time: <span id="score">0</span>s</div>
+    <div id="msg">FELL OFF!<br><button onclick="location.reload()" style="font-size: 24px; padding: 10px 20px; cursor: pointer;">Try Again</button></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, ball, platform, score = 0, gameActive = true;
+        let tiltX = 0, tiltZ = 0;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x333344);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            platform = new THREE.Mesh(new THREE.BoxGeometry(5, 0.2, 5), new THREE.MeshPhongMaterial({ color: 0x888888 }));
+            scene.add(platform);
+
+            ball = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshPhongMaterial({ color: 0xffcc00 }));
+            ball.position.y = 0.5;
+            scene.add(ball);
+
+            camera.position.set(0, 8, 8);
+            camera.lookAt(0, 0, 0);
+
+            window.addEventListener('keydown', handleInput);
+            
+            setInterval(() => {
+                if(gameActive) {
+                    score++;
+                    document.getElementById('score').innerText = score;
+                }
+            }, 1000);
+
+            animate();
+        }
+
+        function handleInput(e) {
+            if (!gameActive) return;
+            if (e.key === 'ArrowLeft') tiltZ += 0.02;
+            if (e.key === 'ArrowRight') tiltZ -= 0.02;
+            if (e.key === 'ArrowUp') tiltX -= 0.02;
+            if (e.key === 'ArrowDown') tiltX += 0.02;
+        }
+
+        function animate() {
+            if (!gameActive) return;
+            requestAnimationFrame(animate);
+
+            platform.rotation.x = tiltX;
+            platform.rotation.z = tiltZ;
+
+            // Simple physics approximation
+            ball.position.x += tiltZ * 0.5;
+            ball.position.z += tiltX * 0.5;
+
+            if (Math.abs(ball.position.x) > 2.5 || Math.abs(ball.position.z) > 2.5) {
+                gameActive = false;
+                document.getElementById('msg').style.display = 'block';
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -54,16 +54,14 @@ async def get_chat_history(thread_id: str | None = None):
 async def list_available_models():
     """Fetch models from Groq (Cloud) and Ollama (Local)."""
     models = {
-        "current": {
-            "provider": agent.provider,
-            "model_name": agent.model_name
-        },
+        "current": {"provider": agent.provider, "model_name": agent.model_name},
         "providers": {
             "groq": [],
-            "ollama": []
-        }
+            "ollama": [],
+            "google": ["gemma-4-31b-it", "gemma-4-26b-a4b-it"],
+        },
     }
-    
+
     # Fetch from Groq
     groq_api = os.getenv("GROQ_API")
     if groq_api:
@@ -72,11 +70,11 @@ async def list_available_models():
                 r = await client.get(
                     "https://api.groq.com/openai/v1/models",
                     headers={"Authorization": f"Bearer {groq_api}"},
-                    timeout=5.0
+                    timeout=5.0,
                 )
                 if r.status_code == 200:
                     data = r.json().get("data", [])
-                    # Filter out models that aren't chat models if needed, 
+                    # Filter out models that aren't chat models if needed,
                     # but for now we'll just list them all
                     models["providers"]["groq"] = [m["id"] for m in data]
         except Exception:
@@ -103,7 +101,7 @@ async def set_active_model(req: SetModelRequest):
         return {
             "status": "success",
             "provider": agent.provider,
-            "model_name": agent.model_name
+            "model_name": agent.model_name,
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Target Shoot</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; font-size: 24px; pointer-events: none; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid red; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">Score: <span id="score">0</span></div>
+    <div id="crosshair"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, score = 0, targets = [];
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x001133);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const light = new THREE.PointLight(0xffffff, 1, 100);
+            light.position.set(10, 10, 10);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0x404040));
+
+            camera.position.z = 10;
+
+            window.addEventListener('mousedown', onMouseDown);
+            spawnTarget();
+            animate();
+        }
+
+        function spawnTarget() {
+            const target = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+            target.position.set(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 5 - 5);
+            scene.add(target);
+            targets.push(target);
+            
+            setTimeout(() => {
+                scene.remove(target);
+                targets = targets.filter(t => t !== target);
+            }, 2000);
+
+            setTimeout(spawnTarget, 1000);
+        }
+
+        function onMouseDown(e) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(targets);
+
+            if (intersects.length > 0) {
+                const target = intersects[0].object;
+                scene.remove(target);
+                targets = targets.filter(t => t !== target);
+                score++;
+                document.getElementById('score').innerText = score;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            targets.forEach(t => {
+                t.position.y += Math.sin(Date.now() * 0.002) * 0.01;
+            });
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
