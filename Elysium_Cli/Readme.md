@@ -51,6 +51,9 @@ Elysium_Cli/
 - **Enhanced Parser**: Develop more complex parsing capabilities
 - **More Commands**: Expand available CLI commands
 
+## Flow 
+![flow](https://raw.githubusercontent.com/Shishir-Kc/Assets/refs/heads/main/Elysium_cli/flow.png)
+
 ## License
 
 [To be determined]
