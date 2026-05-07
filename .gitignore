@@ -7,6 +7,10 @@ wheels/
 *.egg-info
 *.so
 
+Elysium_Cli/test
+Elysium_Cli/*.o
+Elysium_Cli/*.out
+Elysium_Cli/*.exe
 # Virtual environments
 .venv
 .env/
