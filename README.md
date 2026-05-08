@@ -1,14 +1,17 @@
 # Elysium - Home Server
 
-Elysium is a FastAPI-based home server application that provides various services including server health monitoring, email automation, AI chat capabilities, and background task processing.fastapi
+Elysium is a FastAPI-based home server application that provides various services including server health monitoring, email automation, AI chat capabilities, background task processing.
 ## Technology Stack
 
 ### Backend
 - **Framework**: FastAPI
 - **Task Queue**: Celery with Redis
-- **AI**: LangChain with Groq integration
+- **AI**: LangChain (Groq, Ollama), LangGraph
 - **Email**: aiosmtplib
-- **Async HTTP**: httpx
+- **Async HTTP**: httpx (via FastAPI standard)
+- **Audio**: faster-whisper, pyaudio, sounddevice, webrtcvad-wheels
+- **System Monitoring**: psutil
+- **Utilities**: numpy, rich, requests
 - **Package Manager**: uv
 
 ### Frontend
@@ -107,6 +110,18 @@ Elysium/
 │       └── Email/
 │           └── email_schema.py  # Pydantic email model
 │
+├── Elysium_Cli/              # C-based CLI tool
+│   ├── main.c                # CLI entry point
+│   ├── Makefile              # Build configuration
+│   ├── commands/             # CLI commands
+│   │   ├── help/             # Help command
+│   │   └── system_info/      # System info command
+│   ├── internal/             # Core modules
+│   │   ├── core/             # Core logic
+│   │   └── parse/            # Input parsing
+│   ├── test                  # Test files
+│   └── Readme.md             # CLI README
+│
 ├── Sentinel/                    # File integrity monitoring
 │   ├── watcher.py               # SHA-256 file watcher & backup
 │   ├── dir.json                 # Directory config
@@ -195,6 +210,19 @@ Elysium/
 | `dir.json` | Directory configuration (placeholder) |
 | `ignore.json` | Files/directories to skip: `.git`, `.gitignore`, `Elysium_back_up`, `__pycache__`, `Logs` |
 
+### `Elysium_Cli/` - C-based CLI Tool
+
+| File | Purpose |
+|------|---------|
+| `main.c` | CLI entry point |
+| `Makefile` | Build configuration for the C CLI |
+| `commands/help/` | Help command implementation |
+| `commands/system_info/` | System information command |
+| `internal/core/` | Core CLI logic |
+| `internal/parse/` | Input parsing modules |
+| `test` | Test files |
+| `Readme.md` | CLI-specific documentation |
+
 ### `assets/Elysium/` - Branding
 
 | File | Purpose |
@@ -252,9 +280,9 @@ Elysium/
 ```bash
 # Start Redis (required for Celery)
 redis-server
-And
-Valkey for ( Arch Linux )
 
+# For Arch Linux, use Valkey instead of Redis:
+valkey-server
 
 # Start Celery worker
 uv run celery -A Elysium_Celery.config worker --loglevel=info
@@ -291,13 +319,17 @@ SMTP_USER=your_email@example.com
 SMTP_PASS=your_password
 GROQ=your_groq_api_key
 ```
-## Run Docker Container 
- 
-``` 
-This runs the container ! -  > docker run -d -p 8000:8000 --env-file ../.env --name elysium_server elysium
+## Docker Deployment
 
-This stops and removes the container -> docker stop elysium_server && docker rm elysium_server
-  
+```bash
+# Build the Docker image
+docker build -t elysium .
+
+# Run the container
+docker run -d -p 8000:8000 --env-file .env --name elysium_server elysium
+
+# Stop and remove the container
+docker stop elysium_server && docker rm elysium_server
 ```
 
 ---
