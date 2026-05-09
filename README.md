@@ -1,24 +1,19 @@
 # Elysium - Home Server
 
 Elysium is a FastAPI-based home server application that provides various services including server health monitoring, email automation, AI chat capabilities, background task processing.
+
 ## Technology Stack
 
 ### Backend
 - **Framework**: FastAPI
 - **Task Queue**: Celery with Redis
-- **AI**: LangChain (Groq, Ollama), LangGraph
+- **AI**: LangChain (Groq, Ollama), LangGraph, Qwen
 - **Email**: aiosmtplib
 - **Async HTTP**: httpx (via FastAPI standard)
 - **Audio**: faster-whisper, pyaudio, sounddevice, webrtcvad-wheels
 - **System Monitoring**: psutil
 - **Utilities**: numpy, rich, requests
 - **Package Manager**: uv
-
-### Frontend
-- **Framework**: React 19
-- **Language**: TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
 
 ---
 
@@ -28,24 +23,9 @@ Elysium is a FastAPI-based home server application that provides various service
 Elysium/
 ├── main.py                     # FastAPI application entry point
 ├── server_logging.py          # Server-wide logging configuration
+├── elysium_tui.py             # Server Terminal User Interface
 ├── pyproject.toml             # Project metadata and dependencies
 ├── requirements.txt           # Python dependencies
-│
-├── WEB/                       # React Frontend (UI)
-│   ├── src/                   # Source code
-│   │   ├── App.tsx            # Main React component
-│   │   ├── ChatPage.tsx       # AI Chat UI page
-│   │   ├── api/               # API client
-│   │   │   └── elysiumApi.ts  # Backend API integration
-│   │   ├── context/           # React Context
-│   │   │   └── NavigationContext.tsx  # Navigation state
-│   │   ├── index.css          # Global styles (Tailwind)
-│   │   └── main.tsx           # React entry point
-│   ├── dist/                  # Built static files
-│   ├── package.json           # Node dependencies
-│   ├── tailwind.config.js     # Tailwind configuration
-│   ├── vite.config.ts         # Vite configuration
-│   └── .env                   # Frontend environment variables
 │
 ├── api/
 │   └── v1/                    # API Version 1
@@ -74,8 +54,14 @@ Elysium/
 │   │   ├── __init__.py
 │   │   └── email_service.py  # Async email sending via SMTP
 │   │
-│   └── Server_Dir_check/      # Server directory integrity
-│       └── server_file_integrety.py  # Creates required log directories
+│   ├── Server_Dir_check/      # Server directory integrity
+│   │   └── server_file_integrety.py  # Creates required log directories
+│   │
+│   ├── Voice_To_Text/         # Audio transcription
+│   │   └── transcriber.py     # Voice-to-text processing
+│   │
+│   └── elysium_server/        # Server management
+│       └── restart.py         # Server restart logic
 │
 ├── Elysium_Celery/            # Celery task configuration
 │   ├── config.py              # Celery broker/backend setup
@@ -85,14 +71,18 @@ Elysium/
 │   ├── Email/
 │   │   └── email_config.py    # SMTP credentials from .env
 │   └── Ai/
-│       └── config_groq.py     # Groq API key configuration
+│       ├── config_groq.py     # Groq API key configuration
+│       └── config_google.py   # Google AI configuration
 │
 ├── AI/                        # AI integration
 │   ├── Cloud/
 │   │   └── Groq/
 │   │       └── groq_ai.py     # LangChain Groq agent
+│   ├── Local/
+│   │   └── qwen.py            # Local AI implementation using Qwen
 │   └── Tools/
-│       └── email.py           # AI tool for sending emails
+│       ├── email.py           # AI tool for sending emails
+│       └── file_ops.py        # AI tool for file system operations
 │
 ├── Tools/                     # Utility tools
 │   ├── Hyper/
@@ -122,18 +112,26 @@ Elysium/
 │   ├── test                  # Test files
 │   └── Readme.md             # CLI README
 │
+├── Modules/                   # C Extensions
+│   ├── hellomodule.c          # Example C extension
+│   └── setup.py               # Build script for modules
+│
 ├── Sentinel/                    # File integrity monitoring
 │   ├── watcher.py               # SHA-256 file watcher & backup
 │   ├── dir.json                 # Directory config
 │   └── ignore.json              # Files/dirs to ignore
 │
 └── assets/
-    └── Elysium/               # Server branding assets
-        ├── __init__.py
-        ├── start_up.py       # Startup/shutdown routines
-        ├── branding.txt      # ASCII art logo
-        ├── shutting.txt      # Shutdown message
-        └── restarting.txt    # Restart message
+    ├── Elysium/               # Server branding assets
+    │   ├── __init__.py
+    │   ├── start_up.py       # Startup/shutdown routines
+    │   ├── branding.txt      # ASCII art logo
+    │   ├── shutting.txt      # Shutdown message
+    │   └── restarting.txt    # Restart message
+    ├── Watcher/
+    │   └── eye.txt            # Sentinel branding
+    └── Workers/
+        └── worker.txt         # Celery worker branding
 ```
 
 ---
@@ -146,6 +144,7 @@ Elysium/
 |------|---------|
 | `main.py` | FastAPI app initialization with CORS middleware, lifespan context manager, and router inclusion |
 | `server_logging.py` | Global logger instance for the server |
+| `elysium_tui.py` | Terminal-based user interface for server management |
 | `pyproject.toml` | Project metadata (name: elysium, version: 0.1.0) |
 | `requirements.txt` | Frozen dependency list (generated by uv from pyproject.toml) |
 
@@ -166,6 +165,8 @@ Elysium/
 |------|---------|
 | `email_service.py` | Async SMTP email sending using `aiosmtplib` |
 | `server_file_integrety.py` | Checks/creates `Logs/Hyper` and `Logs/Elysium` directories on startup |
+| `transcriber.py` | Voice-to-text transcription service |
+| `restart.py` | Logic for server process restart |
 
 ### `Elysium_Celery/` - Background Tasks
 
@@ -180,13 +181,16 @@ Elysium/
 |------|---------|
 | `email_config.py` | Loads SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS from `.env` |
 | `config_groq.py` | Loads Groq API key from `.env` |
+| `config_google.py` | Loads Google AI configuration from `.env` |
 
 ### `AI/` - Artificial Intelligence
 
 | File | Purpose |
 |------|---------|
 | `groq_ai.py` | LangChain agent using ChatGroq with email tool |
+| `qwen.py` | Local AI implementation using Qwen model |
 | `email.py` | LangChain `@tool` decorator for AI-driven email sending |
+| `file_ops.py` | LangChain `@tool` for AI-driven file operations |
 
 ### `Tools/` - Utilities
 
@@ -223,6 +227,13 @@ Elysium/
 | `test` | Test files |
 | `Readme.md` | CLI-specific documentation |
 
+### `Modules/` - C Extensions
+
+| File | Purpose |
+|------|---------|
+| `hellomodule.c` | Example C extension for Python |
+| `setup.py` | Script to compile and install C modules |
+
 ### `assets/Elysium/` - Branding
 
 | File | Purpose |
@@ -231,18 +242,6 @@ Elysium/
 | `branding.txt` | Elysium ASCII art logo |
 | `shutdown.txt` | Shutdown message |
 | `restarting.txt` | Restart message |
-
-### `WEB/` - Frontend (React UI)
-
-| File | Purpose |
-|------|---------|
-| `src/App.tsx` | Main React application component |
-| `src/ChatPage.tsx` | AI Chat interface page |
-| `src/api/elysiumApi.ts` | API client for backend communication |
-| `src/context/NavigationContext.tsx` | Navigation state management |
-| `src/index.css` | Global styles with Tailwind CSS |
-| `src/main.tsx` | React application entry point |
-| `dist/` | Built static files (production) |
 
 ---
 
@@ -262,8 +261,8 @@ Elysium/
    - Celery worker executes `prepare_email()` via `aiosmtplib`
 
 4. **AI Chat Flow**:
-   - POST to `/api/v1/chat/Agent` → LangChain agent with Groq
-   - Agent can use `send_email` tool to send emails
+   - POST to `/api/v1/chat/Agent` → LangChain agent (Groq/Qwen)
+   - Agent can use `send_email` and `file_ops` tools
 
 5. **WebSocket**:
    - `/api/v1/ws/` endpoint sends dummy laptop prices every 10 seconds
@@ -292,20 +291,9 @@ uv run uvicorn main:elysium_server --reload
 
 # Run file integrity watcher
 uv run Sentinel/watcher.py
-```
 
-### Frontend
-
-```bash
-# Install dependencies
-cd WEB
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
+# Run the TUI
+uv run elysium_tui.py
 ```
 
 ---
@@ -318,7 +306,9 @@ SMTP_PORT=587
 SMTP_USER=your_email@example.com
 SMTP_PASS=your_password
 GROQ=your_groq_api_key
+GOOGLE_API_KEY=your_google_api_key
 ```
+
 ## Docker Deployment
 
 ```bash
@@ -336,16 +326,12 @@ docker stop elysium_server && docker rm elysium_server
 
 ## Frontend-Backend Communication
 
-The React frontend communicates with the FastAPI backend via HTTP requests.
+The system uses REST API and WebSockets for communication.
 
 | Frontend Endpoint | Backend Endpoint | Description |
 |------------------|------------------|-------------|
 | `GET /api/v1/health` | `GET /api/v1/health` | Server health status |
-| `POST /api/v1/chat/Agent` | `POST /api/v1/chat/Agent` | AI Chat with Groq |
+| `POST /api/v1/chat/Agent` | `POST /api/v1/chat/Agent` | AI Chat with Groq/Qwen |
 | `POST /api/v1/send/email` | `POST /api/v1/send/email` | Send email via Celery |
 
 Default backend URL: `http://localhost:8000`
-
----
-
-
