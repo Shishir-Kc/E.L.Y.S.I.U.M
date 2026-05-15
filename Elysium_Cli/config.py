@@ -129,12 +129,18 @@ class Config:
         config = self.load()
         model = config.get("model",{})
         model_name = model.get("model_name")
+        provider = model.get("provider")
         api_key = model.get("api_key")
         model_type = model.get("model_type")
         if model_type == "Cloud" and api_key =="":
             logger.warning(f" Api key not provided for the Model : {model_name}  {self.sad_face} ")
             try:
                 api_key = str(input("API_KEY: "))
+                self.update_config(
+                                  provider=provider,
+                                   api_key=api_key,
+                                   model_name=model_name,
+                                   model_type=model_type)
             except KeyboardInterrupt:
                 logger.warning(f"API_KEY not saved!  {self.sad_face} ")
         return (model)
