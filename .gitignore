@@ -8,8 +8,8 @@ wheels/
 *.so
 
 # Elysium_Cli 
-Elysium_Cli/config.json
-Elysium_Cli/config.log
+Elysium_Cli/Config/config.json
+Elysium_Cli/Config/config.log
 
 
 # Virtual environments
