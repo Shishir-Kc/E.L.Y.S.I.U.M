@@ -1,5 +1,6 @@
 import json
 import os
+from time import process_time_ns
 from internal.Errors.errors import ConfigNotFound, InvalidArgsFound
 import argparse
 import logging
@@ -28,8 +29,9 @@ class Model_Schema(BaseModel):
 
 class Config:
     def __init__(self) -> None:
-        def make_config(over_ride:bool=False)->None:
-            default_config = {
+        self.sad_face = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . :("
+        self.happy_face = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . :)"
+        self.default_config = {
                      "model":{
                     "provider": "provider_name(Google , OpenAI , Anthropic )",
                     "model_name": "model_name (gemini-3.1-flash-lite , gtp-5.4 , claude-sonnet-4-6",
@@ -37,14 +39,14 @@ class Config:
                     "model_type": "Local/Cloud"
                     }
                 } 
-
+        def make_config(over_ride:bool=False)->None:
             if not os.path.exists('config.json'):
                 with open('config.json','w') as data:
-                    json.dump(default_config,data,indent=2)
+                    json.dump(self.default_config,data,indent=2)
                 print(" Default config.json has been created ")
             if over_ride:
                 with open('config.json','w') as data:
-                    json.dump(default_config,data,indent=2)
+                    json.dump(self.default_config,data,indent=2)
 
 
         self.parser = argparse.ArgumentParser()
@@ -55,18 +57,23 @@ class Config:
         if self.args.make:
             # here if there is not premade config then it will make a default config . 
             # all the values will be null !  
-            logger.info("Creating Default config",self.happy_face)
+            logger.info("Creating Default config"+self.happy_face)
             
             make_config() 
 
         if self.args.over_ride:
             logger.warning("Warning Your Config.json file will be over_rided with default config.json")
-            user_permission = input(" Are You Sure ?")
-            if not user_permission == "n":
+            try:
+             user_permission = input(" Are You Sure ? Anything/n => ")
+             if not user_permission == "n":
                 logger.info("Creating default config.json ")
                 make_config(over_ride=True)
-            else:
-                logger.info(" Operation (over_ride) Cancled ")
+             else:
+              logger.info(" Operation (over_ride) Cancled ")
+
+            except KeyboardInterrupt as e :
+                logger.info("Stopped (over_ride) Process" , e)
+
 
         def check_config()->None:
             """
@@ -81,10 +88,17 @@ class Config:
             return 
 
         self.is_config_available = check_config()
-        self.sad_face = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . :("
-        self.happy_face = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . :)"
+    
 
-
+    def input_config(self):
+        config:dict[str,str]={} 
+        try:
+          for i in self.default_config['model'].keys():
+            user_input = str(input(f"Enter {i} => "))
+            config[i]=user_input 
+          self.update_config(**config)
+        except KeyboardInterrupt as e:
+         logger.info("Adding (config key) Interrupted ! " , e)
     def update_config(self,**kwargs):
         try:
             validate = Model_Schema(**kwargs)
@@ -94,8 +108,10 @@ class Config:
         config = self.load()
         with open('config.json','w') as data: 
             config['model']=validate.model_dump(exclude_none=True)
-            json.dump(config,data,indent=2)
-        
+            try: 
+             json.dump(config,data,indent=2)
+            except Exception as e:
+                logger.warning(f"Something Terriable has gone wrong ! check this out ! {e}" + self.sad_face)
 
     def load(self)-> dict:
         try: 
@@ -126,3 +142,4 @@ class Config:
 if __name__ == "__main__":
     config = Config()
     print(config.load_data())
+
