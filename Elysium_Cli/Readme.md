@@ -1,6 +1,6 @@
 # Elysium_Cli
 
-A simple C-based command-line interface application for the Elysium project.
+A Python-based command-line interface application for the Elysium project, designed to be AI-powered and agentic.
 
 ## Current State
 
@@ -20,29 +20,27 @@ Elysium_Cli is in early development stage, providing a basic interactive CLI fra
 ## Building
 
 ```bash
-make build
+python main.py
 ```
-
-This compiles all source files in `commands/` and `internal/` directories.
 
 ## Running
 
 ```bash
-./test
+python main.py
 ```
 
 ## Project Structure
 
 ```
 Elysium_Cli/
-├── main.c                    # Entry point
+├── main.py                 # Entry point
 ├── internal/
-│   ├── core/                 # Core CLI logic
-│   └── parse/                # Input parsing
+│   ├── core/               # Core CLI logic & command routing
+│   └── parse/              # Input parsing (C legacy, to be replaced)
 ├── commands/
-│   ├── help/                 # Help command
-│   └── system_info/          # System info command
-└── Makefile                  # Build configuration
+│   ├── help/               # Help command
+│   └── system_info/         # System info command
+└── external/               # External integrations
 ```
 
 ## Future Plans
