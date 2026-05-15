@@ -15,7 +15,7 @@ from Tools.Progress_bar.smooth_bar import smooth_progress
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger("Sentinel")
+logger = logging.getLogger(__name__)
 
 
 class Sentinel:
