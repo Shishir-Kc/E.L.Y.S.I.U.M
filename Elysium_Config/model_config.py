@@ -89,7 +89,7 @@ class Elysium_Model_Config:
             logger.error("Unsucessful to install !")
         except requests.RequestException as e:
             logger.error(f"Request failed {e}")
-        except ConnectionError or ConnectionAbortedError or ConnectionRefusedError or ConnectionResetError as e:
+        except(ConnectionError, ConnectionAbortedError, ConnectionRefusedError)as e:
          logger.error(f"Connection Error checks the logs ! {e}")
         except Exception as e:
                 logger.error(f"Something went south ! {e}")
