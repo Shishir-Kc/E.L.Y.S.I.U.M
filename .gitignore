@@ -11,6 +11,9 @@ wheels/
 Elysium_Cli/Config/config.json
 Elysium_Cli/Config/config.log
 
+#ELysium_Config
+ELysium_Config/model_config.log
+
 
 # Virtual environments
 .venv
