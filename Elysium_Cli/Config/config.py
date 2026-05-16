@@ -40,17 +40,7 @@ class Config:
                     "api_key": "XAPIX",
                     "model_type": "Local/Cloud"
                     }
-                } 
-        def make_config(over_ride:bool=False)->None:
-            if not os.path.exists(self.base_config_path):
-                with open(self.base_config_path,'w') as data:
-                    json.dump(self.default_config,data,indent=2)
-                print(" Default config.json has been created ")
-            if over_ride:
-                with open(self.base_config_path,'w') as data:
-                    json.dump(self.default_config,data,indent=2)
-
-
+                }
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('-make',action='store_true')
         self.parser.add_argument('-over_ride',action='store_true')
@@ -62,20 +52,19 @@ class Config:
             # all the values will be null !  
             logger.info("Creating Default config"+self.happy_face)
             
-            make_config() 
+            self.make_config() 
 
         if self.args.over_ride:
             """
                  so basically it over writes the config.json file with the predefine 
                  self.default_config . in short u run this your config goo boom ! 
             """
-
             logger.warning("Warning Your Config.json file will be over_rided with default config.json")
             try:
              user_permission = input(" Are You Sure ? Anything/n => ")
              if not user_permission == "n":
                 logger.info("Creating default config.json ")
-                make_config(over_ride=True)
+                self.make_config(over_ride=True)
              else:
               logger.info(" Operation (over_ride) Canceled")
 
@@ -85,8 +74,11 @@ class Config:
         if self.args.add_config:
             logger.info("Adding Values "+self.happy_face)
             self.input_config()
+        self.check_config()
+    
 
-        def check_config()->None:
+    
+    def check_config(self)->None:
             """
              this is function checks of the config is there is not if there is no config 
              it shows a custome Exception where it says ConfigNotFound try creating config 
@@ -96,9 +88,17 @@ class Config:
             if not os.path.exists(self.base_config_path):
                 raise ConfigNotFound ("Config not found !  \n Try creating the config ! with ( -make )  ")    
              
-
-        check_config()
     
+    def make_config(self,over_ride:bool=False)->None:
+            if not os.path.exists(self.base_config_path):
+                with open(self.base_config_path,'w') as data:
+                    json.dump(self.default_config,data,indent=2)
+                print(" Default config.json has been created ")
+            if over_ride:
+                with open(self.base_config_path,'w') as data:
+                    json.dump(self.default_config,data,indent=2)
+
+
 
     def input_config(self):
         config:dict[str,str]={} 
