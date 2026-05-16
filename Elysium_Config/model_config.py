@@ -54,7 +54,6 @@ class Elysium_Model_Config:
         logger.info(f"{self.config_name} exists :) ")
         return True
 
-
     def load_config(self)->dict:
      logger.info("trying to load model_config")
      try:
