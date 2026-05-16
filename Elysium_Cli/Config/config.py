@@ -6,6 +6,9 @@ import logging
 from pydantic import BaseModel
 from pathlib import Path
 
+BASEDIR= Path(__file__).parent
+
+
 logger = logging.getLogger(__name__)
 
 logging.basicConfig(
@@ -13,12 +16,9 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('Config/config.log')
+        logging.FileHandler(f'{BASEDIR}/config.log')
     ]
 )
-
-BASEDIR= Path(__file__).parent
-
 
 class Model_Schema(BaseModel):
     provider:str|None
