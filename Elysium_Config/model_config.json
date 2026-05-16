@@ -1,0 +1,784 @@
+{
+  "google_genai": {
+    "priority": "high",
+    "installation": " uv add -qU langchain ''langchain[google-genai]'' ",
+    "gemini-3.1-flash-lite": {
+      "model_name": "gemini-3.1-flash-lite",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-2.5-flash": {
+      "model_name": "gemini-2.5-flash",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-2.5-flash-tts": {
+      "model_name": "gemini-2.5-flash-tts",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 32768,
+      "model_purpose": [
+        "tts",
+        "audio"
+      ],
+      "is_opensource": "False"
+    },
+    "gemma-4-26b-a4b-it": {
+      "model_name": "gemma-4-26b-a4b-it",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "gemma-4-31b-it": {
+      "model_name": "gemma-4-31b-it",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "gemini-3-flash": {
+      "model_name": "gemini-3-flash",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-embedding-1": {
+      "model_name": "gemini-embedding-1",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 2048,
+      "model_purpose": [
+        "textembedding",
+        "embedding"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-3.1-flash-tts": {
+      "model_name": "gemini-3.1-flash-tts",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 16384,
+      "model_purpose": [
+        "tts",
+        "audio"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-embedding-2": {
+      "model_name": "gemini-embedding-2",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 8192,
+      "model_purpose": [
+        "textembedding",
+        "embedding"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-3-flash-live": {
+      "model_name": "gemini-3-flash-live",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "speech2speech",
+        "livechat",
+        "tool_calling",
+        "audio",
+        "vision"
+      ],
+      "is_opensource": "False"
+    },
+    "gemini-2.5-flash-native-audio-dialog": {
+      "model_name": "gemini-2.5-flash-native-audio-dialog",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "speech2speech",
+        "livechat",
+        "tool_calling",
+        "audio",
+        "dialog"
+      ],
+      "is_opensource": "False"
+    }
+  },
+  "openrouter": {
+    "priority": "medium",
+    "installation": " uv add -qU langchain langchain-openrouter ",
+    "nvidia/nemotron-3-super-120b-a12b:free": {
+      "model_name": "nvidia/nemotron-3-super-120b-a12b:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "poolside/laguna-m.1:free": {
+      "model_name": "poolside/laguna-m.1:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "openai/gpt-oss-120b:free": {
+      "model_name": "openai/gpt-oss-120b:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "z-ai/glm-4.5-air:free": {
+      "model_name": "z-ai/glm-4.5-air:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "minimax/minimax-m2.5:free": {
+      "model_name": "minimax/minimax-m2.5:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 200000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "poolside/laguna-xs.2:free": {
+      "model_name": "poolside/laguna-xs.2:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "nvidia/nemotron-3-nano-30b-a3b:free": {
+      "model_name": "nvidia/nemotron-3-nano-30b-a3b:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 256000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "openai/gpt-oss-20b:free": {
+      "model_name": "openai/gpt-oss-20b:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "deepseek/deepseek-v4-flash:free": {
+      "model_name": "deepseek/deepseek-v4-flash:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "baidu/cobuddy:free": {
+      "model_name": "baidu/cobuddy:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "coding",
+        "thinking"
+      ],
+      "is_opensource": "False"
+    },
+    "arcee-ai/trinity-large-thinking:free": {
+      "model_name": "arcee-ai/trinity-large-thinking:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free": {
+      "model_name": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 256000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision"
+      ],
+      "is_opensource": "True"
+    },
+    "google/gemma-4-31b-it:free": {
+      "model_name": "google/gemma-4-31b-it:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision"
+      ],
+      "is_opensource": "True"
+    },
+    "nvidia/nemotron-nano-12b-v2-vl:free": {
+      "model_name": "nvidia/nemotron-nano-12b-v2-vl:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "nvidia/nemotron-nano-9b-v2:free": {
+      "model_name": "nvidia/nemotron-nano-9b-v2:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 128000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "google/gemma-4-26b-a4b-it:free": {
+      "model_name": "google/gemma-4-26b-a4b-it:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision"
+      ],
+      "is_opensource": "True"
+    },
+    "nvidia/llama-nemotron-embed-vl-1b-v2:free": {
+      "model_name": "nvidia/llama-nemotron-embed-vl-1b-v2:free",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 8192,
+      "model_purpose": [
+        "textembedding",
+        "imageembedding",
+        "embedding",
+        "vision"
+      ],
+      "is_opensource": "True"
+    },
+    "qwen/qwen3-coder:free": {
+      "model_name": "qwen/qwen3-coder:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 1048576,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "coding"
+      ],
+      "is_opensource": "True"
+    },
+    "meta-llama/llama-3.3-70b-instruct:free": {
+      "model_name": "meta-llama/llama-3.3-70b-instruct:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 65536,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "qwen/qwen3-next-80b-a3b-instruct:free": {
+      "model_name": "qwen/qwen3-next-80b-a3b-instruct:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 262144,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "coding"
+      ],
+      "is_opensource": "True"
+    },
+    "liquid/lfm-2.5-1.2b-thinking:free": {
+      "model_name": "liquid/lfm-2.5-1.2b-thinking:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 32768,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": {
+      "model_name": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 32768,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "uncensored"
+      ],
+      "is_opensource": "True"
+    },
+    "nousresearch/hermes-3-llama-3.1-405b:free": {
+      "model_name": "nousresearch/hermes-3-llama-3.1-405b:free",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "role_playing"
+      ],
+      "is_opensource": "True"
+    },
+    "meta-llama/llama-3.2-3b-instruct:free": {
+      "model_name": "meta-llama/llama-3.2-3b-instruct:free",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling"
+      ],
+      "is_opensource": "True"
+    },
+    "openrouter/free": {
+      "model_name": "openrouter/free",
+      "reasoning": "null",
+      "reasoning_effort": "null",
+      "api_key": "api_key",
+      "model_type": "Cloud",
+      "context_window": null,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "auto_select"
+      ],
+      "is_opensource": "False"
+    }
+  },
+  "ollama": {
+    "priority": "medium",
+    "installation": " uv add -qU langchain langchain-ollama ",
+    "requires": "ollama",
+    "auth": "ollama signin",
+    "kimi-k2.6": {
+      "model_name": "kimi-k2.6",
+      "model_installation": "ollama run kimi-k2.6:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision",
+        "coding",
+        "agentic"
+      ],
+      "is_opensource": "True"
+    },
+    "deepseek-v4-flash": {
+      "model_name": "deepseek-v4-flash",
+      "model_installation": "ollama run deepseek-v4-flash:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 1000000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "deepseek-v4-pro": {
+      "model_name": "deepseek-v4-pro",
+      "model_installation": "ollama run deepseek-v4-pro:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 1000000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "deepseek-v3.2": {
+      "model_name": "deepseek-v3.2",
+      "model_installation": "ollama run deepseek-v3.2:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "qwen3.5": {
+      "model_name": "qwen3.5",
+      "model_installation": "ollama run qwen3.5:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision"
+      ],
+      "is_opensource": "True"
+    },
+    "qwen3-coder-next": {
+      "model_name": "qwen3-coder-next",
+      "model_installation": "ollama run qwen3-coder-next:cloud",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "coding",
+        "agentic"
+      ],
+      "is_opensource": "True"
+    },
+    "glm-5.1": {
+      "model_name": "glm-5.1",
+      "model_installation": "ollama run glm-5.1:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "coding",
+        "agentic"
+      ],
+      "is_opensource": "True"
+    },
+    "minimax-m2.7": {
+      "model_name": "minimax-m2.7",
+      "model_installation": "ollama run minimax-m2.7:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "coding",
+        "agentic"
+      ],
+      "is_opensource": "False"
+    },
+    "nemotron-3-super": {
+      "model_name": "nemotron-3-super",
+      "model_installation": "ollama run nemotron-3-super:120b-cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "agentic"
+      ],
+      "is_opensource": "True"
+    },
+    "nemotron-3-nano": {
+      "model_name": "nemotron-3-nano",
+      "model_installation": "ollama run nemotron-3-nano:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 1000000,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking"
+      ],
+      "is_opensource": "True"
+    },
+    "gemma4": {
+      "model_name": "gemma4",
+      "model_installation": "ollama run gemma4:cloud",
+      "reasoning": "True",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "thinking",
+        "vision",
+        "audio"
+      ],
+      "is_opensource": "True"
+    },
+    "devstral-small-2": {
+      "model_name": "devstral-small-2",
+      "model_installation": "ollama run devstral-small-2:24b-cloud",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision",
+        "coding",
+        "agentic"
+      ],
+      "is_opensource": "True"
+    },
+    "ministral-3": {
+      "model_name": "ministral-3",
+      "model_installation": "ollama run ministral-3:cloud",
+      "reasoning": "False",
+      "reasoning_effort": "null",
+      "api_key": "ollama_api_key",
+      "model_type": "Cloud",
+      "context_window": 131072,
+      "model_purpose": [
+        "text2text",
+        "fast_chat",
+        "tool_calling",
+        "vision"
+      ],
+      "is_opensource": "True"
+    }
+  }
+}
