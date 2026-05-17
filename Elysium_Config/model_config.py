@@ -11,7 +11,7 @@ from pathlib import Path
 import logging
 import argparse
 import requests
-
+from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven
 
 BASEDIR = Path(__file__).resolve().parent
 
@@ -21,7 +21,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s | %(name)s | %(levelname)s |  %(message)s",
     handlers=[
-        logging.StreamHandler(),
+        # logging.StreamHandler(),
         logging.FileHandler(f"{BASEDIR}/model_config.log")
     ]
 )
@@ -30,8 +30,9 @@ class Elysium_Model_Config:
     def __init__(self) -> None:
         self.config_name = "model_config.json" 
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('-download_config',action='store_true')
-        self.parser.add_argument('-make',action='store_true')
+        self.parser.add_argument('-download_config',action='store_true',help="downlads pre-defined model config ")
+        self.parser.add_argument('-make',action='store_true',help="make pre-defined model config")
+        self.parser.add_argument('-insert_api',action="store_true",help="update api key ")
         self.args = self.parser.parse_args()
         self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Assets/main/Elysium_config/model_config.json"  
         if self.args.download_config:
@@ -46,7 +47,8 @@ class Elysium_Model_Config:
             if not self.check_model_config_path():
                 self.download_config()
              
-        self.pre_load_config =self.load_config() 
+        self.pre_load_config =self.load_config()
+
     def check_model_config_path(self)->bool:
         if not os.path.exists(f"{BASEDIR}/{self.config_name}"):
             logger.warning(f"{self.config_name} does not exists !")
@@ -74,6 +76,22 @@ class Elysium_Model_Config:
         for  i , provider  in enumerate(self.pre_load_config,start=1):
             print(info.replace("{name}",provider).replace("{num}",str(i)))
     
+    def insert_api_key(self,provider_name:str,model_name:str,api_key:str):
+         model_config = self.load_config()
+         logger.info("Appying Custom API key ")
+         if not provider_name:
+            logger.error("Provider not Givem")
+            raise ProviderNotGiven("Excepted provider name")
+         if not api_key:
+            logger.error("API key not given")
+            raise ApiKeyNotGiven("Excepted API Key")
+         if not model_name:
+            logger.error("Model_name not given")
+            raise ModelNameNotGiven("Excepted Model name ")
+         get_providers_models = model_config.get(provider_name,{})
+         [get_providers_models.pop(otherstuff,None) for otherstuff in ["auth","requires","installation","priority"]]
+         return get_providers_models
+
     def download_config(self, url:str | None = None):
         if not url:
             url = self.default_config_url
@@ -93,7 +111,8 @@ class Elysium_Model_Config:
          logger.error(f"Connection Error checks the logs ! {e}")
         except Exception as e:
                 logger.error(f"Something went south ! {e}")
-    
-el = Elysium_Model_Config()
-
+ 
+if __name__ == "__main__":    
+    el = Elysium_Model_Config()
+    print("Use -h for more info ")
 
