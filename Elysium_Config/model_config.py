@@ -21,7 +21,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s | %(name)s | %(levelname)s |  %(message)s",
     handlers=[
-        # logging.StreamHandler(),
+        # uncomment it only in debug phase ! 
+        # logging.StreamHandler(), 
         logging.FileHandler(f"{BASEDIR}/model_config.log")
     ]
 )
