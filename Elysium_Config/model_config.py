@@ -11,7 +11,7 @@ from pathlib import Path
 import logging
 import argparse
 import requests
-from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven
+from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven,ConfigFileMissing,ProviderNotFound
 
 BASEDIR = Path(__file__).resolve().parent
 
@@ -44,15 +44,18 @@ class Elysium_Model_Config:
             except Exception as e:
                 logger.error(f"something is not right ! {e}")
         if self.args.make:
-            if not self.check_model_config_path():
+            try:
+                self.check_model_config_path()
+            except ConfigFileMissing:
                 self.download_config()
              
-        self.pre_load_config =self.load_config()
+        #self.pre_load_config =self.load_config()
 
     def check_model_config_path(self)->bool:
         if not os.path.exists(f"{BASEDIR}/{self.config_name}"):
             logger.warning(f"{self.config_name} does not exists !")
-            return False
+            raise ConfigFileMissing("Looks like config is missing !") 
+ 
         logger.info(f"{self.config_name} exists :) ")
         return True
 
@@ -73,24 +76,49 @@ class Elysium_Model_Config:
 
     def available_providers(self):
         info= " |  {num} | provider => {name} "
-        for  i , provider  in enumerate(self.pre_load_config,start=1):
+        for  i , provider  in enumerate(f'{self.load_config}',start=1):
             print(info.replace("{name}",provider).replace("{num}",str(i)))
     
-    def insert_api_key(self,provider_name:str,model_name:str,api_key:str):
+    def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
+         
+         self.check_model_config_path()
+          
+         """
+            well this method does few things ! 
+            1) checks if model_name , api_key , and provider_name are given or not . 
+            2) removes  
+            3) 
+
+
+
+         """
          model_config = self.load_config()
          logger.info("Appying Custom API key ")
          if not provider_name:
             logger.error("Provider not Givem")
-            raise ProviderNotGiven("Excepted provider name")
+            raise ProviderNotGiven("Excepted provider name") 
          if not api_key:
             logger.error("API key not given")
             raise ApiKeyNotGiven("Excepted API Key")
          if not model_name:
             logger.error("Model_name not given")
             raise ModelNameNotGiven("Excepted Model name ")
-         get_providers_models = model_config.get(provider_name,{})
-         [get_providers_models.pop(otherstuff,None) for otherstuff in ["auth","requires","installation","priority"]]
-         return get_providers_models
+
+         provider = model_config.get(provider_name,{})
+         if not provider:
+            logger.error(f"provider '{provider_name}' does not exists in config")
+            raise ProviderNotFound (f"looks like {provider_name} provider  does not exists in config") 
+        # [get_providers_models.pop(otherstuff,None) for otherstuff in ["auth","requires","installation","priority"]]
+         
+         model = provider.get(model_name)
+         if not model:
+            logger.error(f"{model_name} does not exists in {provider_name} config ")
+            raise ModuleNotFoundError(f"Looks like {model_name} is not in {provider_name} config !")
+         model["api_key"] = api_key
+         with open(f"{BASEDIR}/{self.config_name}","w") as file:
+            json.dump(model_config,file,indent=2)
+            logger.info("applied custom api key ! ")
+         return True
 
     def download_config(self, url:str | None = None):
         if not url:
