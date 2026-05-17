@@ -86,11 +86,9 @@ class Elysium_Model_Config:
          """
             well this method does few things ! 
             1) checks if model_name , api_key , and provider_name are given or not . 
-            2) removes  
-            3) 
-
-
-
+            2) get the provider name and specified model  
+            3) check if the model is served by that specified provider (from config)
+            4) update or add api key and save it 
          """
          model_config = self.load_config()
          logger.info("Appying Custom API key ")
