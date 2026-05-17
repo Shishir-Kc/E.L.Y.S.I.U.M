@@ -10,5 +10,7 @@ class Load_Agent():
 
 if __name__ == "__main__":
     agent = Load_Agent()
-    print(agent.Elysium_ModelConfig.insert_api_key(api_key="something",provider_name="ollama",model_name="gemma4"))
-
+    try:
+        print(agent.Elysium_ModelConfig.insert_api_key(api_key="are_u_stupid",provider_name="google_genai",model_name="gemini-2.5-flash"))
+    except Exception as e:
+        print(e)
