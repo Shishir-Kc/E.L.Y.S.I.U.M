@@ -20,8 +20,6 @@ Elysium is a modular, AI-augmented home server and CLI toolkit built with FastAP
 
 ```
 Elysium/
-├── Dockerfile                 # Docker container configuration
-├── .dockerignore              # Docker ignore rules
 ├── .python-version            # Python version specification
 ├── uv.lock                    # uv dependency lockfile
 ├── pyproject.toml             # Project metadata and dependencies
@@ -87,8 +85,6 @@ Elysium/
 | `requirements.txt` | Frozen dependency list |
 | `uv.lock` | Frozen dependency lockfile |
 | `install.sh` | Installation and environment setup script |
-| `Dockerfile` | Docker image build instructions |
-| `.dockerignore` | Excludes unnecessary files from Docker context |
 | `.python-version` | Specifies Python version for pyenv/uv |
 | `.env` | Environment variables for SMTP, AI APIs, etc. |
 
@@ -190,19 +186,6 @@ SMTP_USER=your_email@example.com
 SMTP_PASS=your_password
 GROQ=your_groq_api_key
 GOOGLE_API_KEY=your_google_api_key
-```
-
-## Docker Deployment
-
-```bash
-# Build the Docker image
-docker build -t elysium .
-
-# Run the container
-docker run -d -p 8000:8000 --env-file .env --name elysium_server elysium
-
-# Stop and remove the container
-docker stop elysium_server && docker rm elysium_server
 ```
 
 ---
