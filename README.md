@@ -1,6 +1,6 @@
 # Elysium - Home Server
 
-Elysium is a modular, AI-augmented home server and CLI toolkit built with FastAPI, LangChain, and Python. It provides server health monitoring, email automation, AI agent configuration, and a hybrid Python/C CLI interface.
+Elysium is a modular, AI-augmented home server and CLI toolkit built with FastAPI, LangChain, and Python. It provides server health monitoring, email automation, AI agent configuration, and a Python CLI interface.
 
 ## Technology Stack
 
@@ -20,7 +20,8 @@ Elysium is a modular, AI-augmented home server and CLI toolkit built with FastAP
 
 ```
 Elysium/
-├── .python-version            # Python version specification
+├── .python-version            # Python version specification (3.12)
+├── .gitignore                 # Git ignore rules
 ├── uv.lock                    # uv dependency lockfile
 ├── pyproject.toml             # Project metadata and dependencies
 ├── requirements.txt           # Python dependencies
@@ -31,7 +32,7 @@ Elysium/
 │   ├── __init__.py
 │   └── agent.py               # Core agent logic
 │
-├── Elysium_Cli/               # Hybrid Python/C CLI tool
+├── Elysium_Cli/               # Python CLI tool
 │   ├── main.py                # CLI entry point
 │   ├── Readme.md              # CLI documentation
 │   ├── Config/                # CLI configuration
@@ -44,15 +45,17 @@ Elysium/
 │   │   │   └── help.py        # Help command
 │   │   └── system_info/
 │   │       └── sys_info.py    # System info command
+│   ├── external/              # External integrations (placeholder)
 │   └── internal/              # Core modules
 │       ├── __init__.py
 │       ├── core/
 │       │   └── core.py        # CLI business logic
 │       ├── Errors/
 │       │   └── errors.py      # CLI custom exceptions
-│       └── parse/             # C-based input parsing
-│           ├── parse.c
-│           └── parse.h
+│       ├── parse/             # Input parsing (legacy C files, unused)
+│       │   ├── parse.c
+│       │   └── parse.h
+│       └── tui/               # TUI module (placeholder)
 │
 ├── Elysium_Config/            # Configuration management
 │   ├── __init__.py
@@ -69,6 +72,7 @@ Elysium/
 │   └── errors.py              # Custom server exceptions
 │
 └── Logs/                      # Runtime logs
+    ├── Elysium/               # Elysium CLI logs (empty)
     └── Hyper/
         └── Hyper_status.log   # Hyper server status logs
 ```
@@ -85,17 +89,17 @@ Elysium/
 | `requirements.txt` | Frozen dependency list |
 | `uv.lock` | Frozen dependency lockfile |
 | `install.sh` | Installation and environment setup script |
-| `.python-version` | Specifies Python version for pyenv/uv |
+| `.python-version` | Specifies Python version (3.12) |
+| `.gitignore` | Git ignore rules |
 | `.env` | Environment variables for SMTP, AI APIs, etc. |
 
-### `Elysium_Cli/` - Hybrid CLI Tool
+### `Elysium_Cli/` - CLI Tool
 
 | File | Purpose |
 |------|---------|
 | `main.py` | CLI entry point |
 | `internal/core/core.py` | Core CLI business logic (Python) |
-| `internal/parse/parse.c` | Input parsing logic (C source) |
-| `internal/parse/parse.h` | Input parsing logic (C header) |
+| `internal/parse/` | Legacy C parsing files (unused) |
 | `Config/config.py` | CLI specific configuration management |
 | `commands/help/help.py` | Help command implementation |
 | `commands/system_info/sys_info.py` | System info command |
@@ -120,7 +124,8 @@ Elysium/
 
 | File | Purpose |
 |------|---------|
-| `errors.py` | Centralized custom exception classes for the server and CLI |
+| `errors.py` | Server-level exceptions (ProviderNotGiven, ModelNameNotGiven, ApiKeyNotGiven, etc.) |
+| `Elysium_Cli/internal/Errors/errors.py` | CLI-specific exceptions (ConfigNotFound, InvalidArgsFound) |
 
 ---
 
@@ -128,7 +133,7 @@ Elysium/
 
 1. **CLI Startup** (`Elysium_Cli/main.py`):
    - Loads `internal/core/core.py` logic
-   - Parses user input via C-based `parse` module
+   - Reads user input via `input()` prompt (`E.L > `)
    - Routes commands to `help` or `system_info`
 
 2. **Model Configuration** (`Elysium_Config/model_config.py`):
@@ -155,23 +160,26 @@ chmod +x install.sh
 ```
 
 ### CLI
+
 ```bash
 # Run the CLI directly
 python Elysium_Cli/main.py
-
-# Or use the uv script entry
-uv run elysium-tui
 ```
 
+> **Note**: `uv run elysium-tui` is listed in the README but `[project.scripts]` in `pyproject.toml` is currently empty.
+
 ### Backend / Worker
+
+> **Note**: Celery and FastAPI server modules are not yet implemented. Dependencies are listed in `requirements.txt` for future use.
+
 ```bash
-# Start Redis (required for Celery)
+# Start Redis (required for Celery, when implemented)
 redis-server
 
-# Start Celery worker
+# Start Celery worker (when Elysium_Celery module is created)
 uv run celery -A Elysium_Celery.config worker --loglevel=info
 
-# Start FastAPI server (if applicable)
+# Start FastAPI server (when server module is created)
 uv run uvicorn main:elysium_server --reload
 ```
 
@@ -194,5 +202,5 @@ GOOGLE_API_KEY=your_google_api_key
 
 - **CLI Entry**: `Elysium_Cli/main.py`
 - **Model Config**: `Elysium_Config/model_config.json`
-- **Logs Directory**: `Logs/Hyper/`
+- **Logs Directories**: `Logs/Hyper/`, `Logs/Elysium/`
 - **Package Manager**: `uv`
