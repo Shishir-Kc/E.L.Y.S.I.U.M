@@ -6,11 +6,11 @@ Elysium is a FastAPI-based home server application that provides various service
 
 ### Backend
 - **Framework**: FastAPI
-- **Task Queue**: Celery with Redis
-- **AI**: LangChain (Groq, Ollama), LangGraph
+- **Task Queue**: Celery with Redis (localhost:6379)
+* **AI**: LangChain (Groq, Ollama), LangGraph (Groq API Key in .env)
 - **Email**: aiosmtplib
 - **Async HTTP**: httpx
-- **Audio**: faster-whisper, pyaudio, sounddevice, webrtcvad-wheels
+- **Audio**: pyaudio, sounddevice, webrtcvad-wheels
 - **System Monitoring**: psutil
 - **Utilities**: numpy, rich, requests
 - **Package Manager**: uv
@@ -243,10 +243,7 @@ Elysium/
 
 ## Code Flow
 
-1. **Startup** (`main.py`):
-   - `Lifespan` context manager runs `check_sys_dir()` then `wakey_wakey()`
-   - Creates required log directories
-   - Prints branding logo
+5. **Startup**: `main.py` uses `uvicorn`'s lifespan context manager to run `check_sys_dir()` and `assets/Elysium/start_up.py`'s `wakey_wakey()` for startup routines.
 
 2. **API Requests**:
    - All routes prefixed with `/api/v1`
@@ -268,7 +265,7 @@ Elysium/
 
 ---
 
-## Running the Server
+# Running the Server
 
 ### Setup
 ```bash
@@ -277,19 +274,26 @@ chmod +x install.sh
 ```
 
 ### Backend
-```bash
+Local:
+\`\`\`bash
 # Start Redis (required for Celery)
 redis-server
 
-# For Arch Linux, use Valkey instead of Redis:
-valkey-server
-
 # Start Celery worker
-uv run celery -A Elysium_Celery.config worker --loglevel=info
+uvicorn Elysium_Celery.config:celery_app --load-examples worker --loglevel info
 
 # Start FastAPI server
-uv run uvicorn main:elysium_server --reload
-```
+uvicorn main:elysium_server --reload
+\`\`\`
+
+Docker:
+\`\`\`bash
+# Build the Docker image
+docker build -t elysium .
+
+# Run the container
+docker run -d -p 8000:8000 --name elysium_server elysium
+\`\`\`
 
 ---
 
