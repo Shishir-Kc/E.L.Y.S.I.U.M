@@ -23,6 +23,10 @@ Elysium is a FastAPI-based home server application that provides various service
 Elysium/
 ├── main.py                     # FastAPI application entry point
 ├── server_logging.py          # Server-wide logging configuration
+├── Dockerfile                 # Docker container configuration
+├── .dockerignore              # Docker ignore rules
+├── .python-version            # Python version specification
+├── uv.lock                    # uv dependency lockfile
 ├── pyproject.toml             # Project metadata and dependencies
 ├── requirements.txt           # Python dependencies
 ├── install.sh                 # Project installation script
@@ -57,13 +61,12 @@ Elysium/
 │   ├── Server_Dir_check/      # Server directory integrity
 │   │   └── server_file_integrety.py  # Creates required log directories
 │   │
-│   ├── Voice_To_Text/         # Audio transcription
-│   │   └── transcriber.py     # Voice-to-text processing
-│   │
 │   └── elysium_server/        # Server management
+│       ├── __init__.py
 │       └── restart.py         # Server restart logic
 │
 ├── Elysium_Celery/            # Celery task configuration
+│   ├── __init__.py
 │   ├── config.py              # Celery broker/backend setup
 │   └── tasks.py               # Background tasks (email, test)
 │
@@ -75,8 +78,10 @@ Elysium/
 │   │   ├── config_groq.py     # Groq API key configuration
 │   │   └── config_google.py   # Google AI configuration
 │   │
+│   ├── __init__.py
 │   ├── model_config.py        # Model configuration management
-│   └── __init__.py
+│   ├── model_config.json      # Active model settings JSON
+│   └── model_config.log       # Model configuration log
 │
 ├── Agents/                    # AI Agent implementations
 │   ├── __init__.py
@@ -101,17 +106,28 @@ Elysium/
 │   ├── main.py                # CLI entry point
 │   ├── Readme.md              # CLI README
 │   ├── Config/                # CLI configuration
+│   │   ├── __init__.py
 │   │   ├── config.py
 │   │   └── config.json
+│   │
 │   ├── commands/             # CLI commands
 │   │   ├── help/             # Help command
+│   │   │   └── help.py
 │   │   └── system_info/      # System info command
+│   │       └── sys_info.py
 │   │
-│   └── internal/             # Core modules
-│       ├── core/             # Core Python logic
-│       ├── parse/            # C-based input parsing
-│       ├── tui/              # TUI implementation
-│       └── Errors/           # CLI error handling
+│   ├── internal/             # Core modules
+│   │   ├── core/             # Core Python logic
+│   │   │   └── core.py
+│   │   ├── parse/            # C-based input parsing
+│   │   │   ├── parse.c
+│   │   │   └── parse.h
+│   │   ├── tui/              # TUI implementation
+│   │   │   └── __init__.py
+│   │   └── Errors/           # CLI error handling
+│   │       └── errors.py
+│   │
+│   └── external/             # External resources
 │
 └── assets/
     ├── Elysium/               # Server branding assets
@@ -136,6 +152,10 @@ Elysium/
 |------|---------|
 | `main.py` | FastAPI app initialization with CORS middleware, lifespan context manager, and router inclusion |
 | `server_logging.py` | Global logger instance for the server |
+| `Dockerfile` | Docker image build instructions |
+| `.dockerignore` | Excludes unnecessary files from Docker context |
+| `.python-version` | Specifies Python version for pyenv/ui |
+| `uv.lock` | Frozen dependency lockfile |
 | `pyproject.toml` | Project metadata (name: elysium, version: 0.1.0) |
 | `requirements.txt` | Frozen dependency list |
 | `install.sh` | Installation and environment setup script |
@@ -157,7 +177,6 @@ Elysium/
 |------|---------|
 | `email_service.py` | Async SMTP email sending using `aiosmtplib` |
 | `server_file_integrety.py` | Checks/creates `Logs/Hyper` and `Logs/Elysium` directories on startup |
-| `transcriber.py` | Voice-to-text transcription service |
 | `restart.py` | Logic for server process restart |
 
 ### `Elysium_Celery/` - Background Tasks
@@ -175,6 +194,8 @@ Elysium/
 | `config_groq.py` | Loads Groq API key from `.env` |
 | `config_google.py` | Loads Google AI configuration from `.env` |
 | `model_config.py` | Manages active AI model settings |
+| `model_config.json` | Active model settings in JSON format |
+| `model_config.log` | Model configuration activity log |
 
 ### `Agents/` - AI Agents
 
@@ -201,10 +222,13 @@ Elysium/
 | File | Purpose |
 |------|---------|
 | `main.py` | CLI entry point |
-| `internal/core/` | Core CLI business logic (Python) |
-| `internal/parse/` | Input parsing logic (C) |
-| `internal/tui/` | Terminal User Interface implementation |
+| `internal/core/core.py` | Core CLI business logic (Python) |
+| `internal/parse/parse.c` | Input parsing logic (C source) |
+| `internal/parse/parse.h` | Input parsing logic (C header) |
+| `internal/tui/__init__.py` | Terminal User Interface implementation |
 | `Config/config.py` | CLI specific configuration management |
+| `commands/help/help.py` | Help command implementation |
+| `commands/system_info/sys_info.py` | System info command |
 
 ### `assets/Elysium/` - Branding
 
