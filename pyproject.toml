@@ -5,26 +5,10 @@ description = "Home_server"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "aiosmtplib>=5.1.0",
-    "celery>=5.6.2",
-    "fastapi[standard]>=0.135.1",
-    "langchain>=1.2.10",
-    "langchain-groq>=1.1.2",
-    "langchain-ollama>=1.0.1",
-    "langgraph>=1.0.10",
-    "numpy>=2.4.3",
-    "psutil>=7.2.2",
-    "pyaudio>=0.2.14",
-    "redis>=7.2.1",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.2",
     "requests>=2.32.5",
-    "rich>=14.3.3",
-    "setuptools>=82.0.1",
-    "sounddevice>=0.5.5",
-    "textual>=8.2.3",
-    "textual>=8.2.3",
-    "typer>=0.24.1",
-    "webrtcvad-wheels>=2.0.14",
 ]
 
 [project.scripts]
-elysium-tui = "Elysium_Cli.Cli.cli:main"
+
