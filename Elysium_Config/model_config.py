@@ -35,7 +35,7 @@ class Elysium_Model_Config:
         self.parser.add_argument('-make',action='store_true',help="make pre-defined model config")
         self.parser.add_argument('-insert_api',action="store_true",help="update api key ")
         self.args = self.parser.parse_args()
-        self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Assets/main/Elysium_config/model_config.json"  
+        self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/main/Configs/Elysium_config/model_config.json"  
         if self.args.download_config:
             logger.info("user started config installation")
             try:
