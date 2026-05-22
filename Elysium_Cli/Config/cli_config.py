@@ -1,5 +1,6 @@
 import json
 import os
+from typing import List
 from internal import ConfigNotFound,InvalidArgsFound
 import argparse
 import logging
@@ -9,18 +10,38 @@ import requests
 
 
 BASEDIR= Path(__file__).parent
-
-
+#
+# its logs will be under .config/Elysim/logs
+#
 logger = logging.getLogger(__name__)
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
+def logs(debug: bool = False):
+    try:
+        if not debug:
+         logs=str(input("Logs ? y/n => "))
+         user_choice = list(logs.lower())
+         user_choice = user_choice[0]
+         if  user_choice == "y":
+            debug = True
+         elif user_choice == "n":
+            debug = False
+    except Exception as e:
+        raise Exception (e)
+
+    handlers:List[logging.Handler] = [
         logging.FileHandler(f'{BASEDIR}/config.log')
     ]
-)
+    if debug:
+        handlers.append(logging.StreamHandler())
+    
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO, 
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=handlers
+    )
+
+logs()
+
 
 class Model_Schema(BaseModel):
     provider:str|None
@@ -135,7 +156,7 @@ class Config:
             return {
                 "Error":e
             }
-    def load_data(self)->dict:
+    def load_model_data(self)->dict:
         config = self.load()
         model = config.get("model",{})
         model_name = model.get("model_name")
