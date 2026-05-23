@@ -75,11 +75,12 @@ class Elysium_Model_Config:
         logger.error(f"Looks like something went wrong {e}")
         return {}
 
-    def available_providers(self):
-        info= " |  {num} | provider => {name} "
+    def available_providers(self)->dict:
+        providers ={}
         for  i , provider  in enumerate(f'{self.load_config}',start=1):
-            print(info.replace("{name}",provider).replace("{num}",str(i)))
-    
+            providers[i]=provider
+        return providers
+
     def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
          
          self.check_model_config_path()
