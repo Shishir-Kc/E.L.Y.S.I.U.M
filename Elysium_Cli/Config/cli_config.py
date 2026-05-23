@@ -6,24 +6,25 @@ import argparse
 import logging
 from pydantic import BaseModel
 import requests
-from Elysium_Config.path_config import BASEDIR, check_for_eLysium,ELYSIUM_PATH,get_elysium_path
+from Elysium_Config.path_config import BASEDIR, ELYSIUM_PATH
 
 #
 # its logs will be under .config/Elysim/logs/cli
 #
-
-if not check_for_eLysium():
-    raise ConfigNotFound("Config not found !")
-
 # where ELYSIUM_PATH -> $HOME/.config/Elysium/
-LOG_PATH = get_elysium_path(of="Log_path")
-print(LOG_PATH)
-print(ELYSIUM_PATH)
-print(ELYSIUM_PATH.replace(ELYSIUM_PATH,LOG_PATH))
-os.makedirs(f"{ELYSIUM_PATH}/cli",exist_ok=True)
-BASEDIR = f"{ELYSIUM_PATH}/Logs"
 
-logger = logging.getLogger(__name__)
+LOGDIR = f"{ELYSIUM_PATH}/Logs/cli"
+BASEDIR = f"{ELYSIUM_PATH}/Config/cli"
+paths = [BASEDIR,LOGDIR]
+
+
+for path in paths: 
+    """
+     this loop creates path if it doesnot exists of it does then it will not shoe error ! :) 
+    """
+    os.makedirs(path,exist_ok=True)
+
+logger = logging.getLogger("Elysium.Cli.Config.cli_config")
 
 def logs(debug: bool = False):
     try:
@@ -39,7 +40,7 @@ def logs(debug: bool = False):
         raise Exception (e)
 
     handlers:List[logging.Handler] = [
-        logging.FileHandler(f'{BASEDIR}/config.log')
+        logging.FileHandler(f'{LOGDIR}/config.log')
     ]
     if debug:
         handlers.append(logging.StreamHandler())
@@ -68,9 +69,9 @@ class Config:
         self.happy_face = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . :)"
         self.default_config_url = "https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/main/Configs/Elysium_cli/cli_config.json"
         self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('-make',action='store_true')
-        self.parser.add_argument('-over_ride',action='store_true')
-        self.parser.add_argument('-add_config',action='store_true')
+        self.parser.add_argument('-make',action='store_true',help="Create fresh config ")
+        self.parser.add_argument('-over_ride',action='store_true',help="over_ride default config ")
+        self.parser.add_argument('-add_config',action='store_true',help="add config")
         self.args = self.parser.parse_args()
         
         if self.args.make:
@@ -103,7 +104,7 @@ class Config:
         self.check_config()
     
 
-    
+     
     def check_config(self)->None:
             """
              this is function checks of the config is there is not if there is no config 
@@ -126,7 +127,7 @@ class Config:
                 except requests.RequestException as e:
                     logger.error(f"Request failed {e}")
                 except (ConnectionError,ConnectionAbortedError,ConnectionRefusedError) as e:
-                    logger.error(f"Connection error {e}")
+                    logger.error(f"Connection error {e}") 
                 except Exception as e:
                     logger.error(f"Something went south {e}")
     
