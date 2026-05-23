@@ -8,7 +8,7 @@ GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
 ELYSIUM_PATH= f"{Path.home()}/.config/Elysium"
 
 
-def check_for_eLysium()-> bool:
+def check_for_eLysium_path()-> bool:
     try:
         if os.path.exists(ELYSIUM_PATH):
             return True
