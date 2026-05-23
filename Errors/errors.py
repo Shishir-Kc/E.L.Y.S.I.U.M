@@ -9,3 +9,5 @@ class ConfigFileMissing(Exception):
     pass
 class ProviderNotFound(Exception):
     pass
+class DirectoryNotGiven(Exception):
+    pass
