@@ -1,18 +1,28 @@
 import json
 import os
 from typing import List
-from internal import ConfigNotFound,InvalidArgsFound
+from Elysium_Cli.internal import ConfigNotFound,InvalidArgsFound
 import argparse
 import logging
 from pydantic import BaseModel
-from pathlib import Path
 import requests
+from Elysium_Config.path_config import BASEDIR, check_for_eLysium,ELYSIUM_PATH,get_elysium_path
 
+#
+# its logs will be under .config/Elysim/logs/cli
+#
 
-BASEDIR= Path(__file__).parent
-#
-# its logs will be under .config/Elysim/logs
-#
+if not check_for_eLysium():
+    raise ConfigNotFound("Config not found !")
+
+# where ELYSIUM_PATH -> $HOME/.config/Elysium/
+LOG_PATH = get_elysium_path(of="Log_path")
+print(LOG_PATH)
+print(ELYSIUM_PATH)
+print(ELYSIUM_PATH.replace(ELYSIUM_PATH,LOG_PATH))
+os.makedirs(f"{ELYSIUM_PATH}/cli",exist_ok=True)
+BASEDIR = f"{ELYSIUM_PATH}/Logs"
+
 logger = logging.getLogger(__name__)
 
 def logs(debug: bool = False):
