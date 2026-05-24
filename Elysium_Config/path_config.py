@@ -5,7 +5,16 @@ import requests
 
 BASEDIR = Path(__file__).parent
 GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
-ELYSIUM_PATH= f"{Path.home()}/.config/E.L.Y.S.I.U.M"
+
+
+def get_elysium_path(of:str=""):
+    with open(GENERAL_CONFIG_PATH,"r") as data:        
+        config = json.load(data)
+    elysium_path = config.get("elysium_paths",{})
+    return elysium_path.get(of)
+
+
+ELYSIUM_PATH= f"{Path.home()}/{get_elysium_path(of="Root_path")}"
 
 
 def check_for_eLysium_path()-> bool:
@@ -17,12 +26,6 @@ def check_for_eLysium_path()-> bool:
     except Exception as e:
         print(e)
         return False
-
-def get_elysium_path(of:str=""):
-    with open(GENERAL_CONFIG_PATH,"r") as data:        
-        config = json.load(data)
-    elysium_path = config.get("elysium_paths",{})
-    return elysium_path.get(of)
 
 def show_elysium_paths()->dict:
     paths = {}
