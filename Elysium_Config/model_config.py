@@ -16,6 +16,10 @@ from Elysium_Config.path_config import ELYSIUM_PATH
 BASEDIR = f"{ELYSIUM_PATH}/Config/Model/"
 LOGDIR = f"{ELYSIUM_PATH}/Logs/Model"
 
+paths=[BASEDIR,LOGDIR]
+
+for path in paths:
+    os.makedirs(path,exist_ok=True)
 
 logger=logging.getLogger(__name__)
 
@@ -25,7 +29,7 @@ logging.basicConfig(
     handlers=[
         # uncomment it only in debug phase ! 
         # logging.StreamHandler(), 
-        logging.FileHandler(f"{BASEDIR}/model_config.log")
+        logging.FileHandler(f"{LOGDIR}/model_config.log")
     ]
 )
 
@@ -133,6 +137,7 @@ class Elysium_Model_Config:
            with open(f"{BASEDIR}/{self.config_name}","w") as data:
             json.dump(response.json(),data,indent=2)
             logger.info(f"downloading config from {url}")
+            logger.info("Config Downloaded")
            if not self.check_model_config_path():
             logger.error("Unsucessful to install !")
         except requests.RequestException as e:
