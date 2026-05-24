@@ -14,7 +14,7 @@ Elysium_Cli/Config/config.log
 #ELysium_Config
 Elysium_Config/model_config.log
 Elysium_Config/model_config.json
-
+install.sh
 
 # Virtual environments
 .venv
