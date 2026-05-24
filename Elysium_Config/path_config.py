@@ -5,7 +5,7 @@ import requests
 
 BASEDIR = Path(__file__).parent
 GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
-ELYSIUM_PATH= f"{Path.home()}/.config/Elysium"
+ELYSIUM_PATH= f"{Path.home()}/.config/E.L.Y.S.I.U.M"
 
 
 def check_for_eLysium_path()-> bool:

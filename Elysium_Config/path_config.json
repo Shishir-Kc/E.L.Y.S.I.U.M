@@ -1,9 +1,9 @@
 {
   "elysium_paths": {
-    "Root_path": ".config/Elysium",
-    "Log_path": ".config/Elysium/Logs",
-    "Skill_path": ".config/Elysium/SKills",
-    "Memory_path": ".config/Elysium/Memory",
-    "Config_path": ".config/Elysium/Config"
+    "Root_path": ".config/E.L.Y.S.I.U.M",
+    "Log_path": ".config/E.L.Y.S.I.U.M/Logs",
+    "Skill_path": ".config/E.L.Y.S.I.U.M/SKills",
+    "Memory_path": ".config/E.L.Y.S.I.U.M/Memory",
+    "Config_path": ".config/E.L.Y.S.I.U.M/Config"
   }
 }
