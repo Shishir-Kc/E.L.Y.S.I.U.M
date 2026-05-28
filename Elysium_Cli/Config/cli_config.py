@@ -1,3 +1,11 @@
+"""
+ its logs will be under .config/Elysim/logs/cli
+
+ where ELYSIUM_PATH -> $HOME/.config/Elysium/
+
+"""
+
+
 import json
 import os
 from typing import List
@@ -7,13 +15,7 @@ import logging
 from pydantic import BaseModel
 import requests
 from Elysium_Config.path_config import BASEDIR, ELYSIUM_PATH
-from Security.encription.crypto import generate_key,encrypt,decrypt
-
-
-#
-# its logs will be under .config/Elysim/logs/cli
-#
-# where ELYSIUM_PATH -> $HOME/.config/Elysium/
+from Security.encription.crypto import generate_key,encrypt
 
 LOGDIR = f"{ELYSIUM_PATH}/Logs/cli"
 BASEDIR = f"{ELYSIUM_PATH}/Config/cli"
@@ -134,15 +136,22 @@ class Config:
                     logger.error(f"Something went south {e}")
     
     def input_config(self):
+        _key = generate_key(process="cli_config")
         config:dict[str,str]={} 
         try:
-          for i in self.load()['model'].keys():
-            user_input = str(input(f"Enter {i} => "))
-            config[i]=user_input 
+          model= self.load()['model']
+        
+          for i,key in enumerate(model,start=1):
+            user_input = str(input(f"Enter {key} => "))
+            if key == "api_key":
+                    user_input = encrypt(item=user_input,key=_key)
+                    print(user_input)
+            config[key] = user_input
           self.update_config(**config)
         except KeyboardInterrupt as e:
          logger.info(f"Adding (config key) Interrupted ! {e}" + self.sad_face)
          print(f"Stopped {self.sad_face}")
+
     def update_config(self,**kwargs):
         try:
             validate = Model_Schema(**kwargs)
