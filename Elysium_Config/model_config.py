@@ -113,8 +113,7 @@ class Elysium_Model_Config:
          provider = model_config.get(provider_name,{})
          if not provider:
             logger.error(f"provider '{provider_name}' does not exists in config")
-            raise ProviderNotFound (f"looks like {provider_name} provider  does not exists in config") 
-        # [get_providers_models.pop(otherstuff,None) for otherstuff in ["auth","requires","installation","priority"]]
+            raise ProviderNotFound (f"looks like {provider_name} provider  does not exists in config")  
          
          model = provider.get(model_name)
          if not model:
