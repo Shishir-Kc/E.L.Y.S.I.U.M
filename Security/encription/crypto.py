@@ -28,8 +28,10 @@ logging.basicConfig(
 )
 def generate_key(process:str):
     logging.info(f"creating key for process {process}")
-    key = Fernet.generate_key()
-
+    try:
+     key = Fernet.generate_key()
+    except ValueError as e :
+        logger.error(f"Failed to generate key {e}")
     new_entry = {
         "process": str(process),
         "key": key.decode("utf-8"),
@@ -53,6 +55,7 @@ def generate_key(process:str):
         logger.error(f"failed to save key {e}")
 def encrypt(item,key):
     logging.info("encrypting key")
+    item = item.encode("utf-8")
     key = Fernet(key)
     encrypted_data = key.encrypt(item)
     return encrypted_data.decode('utf-8')
@@ -61,3 +64,12 @@ def decrypt(item,key):
     key=Fernet(key)
     return key.decrypt(item).decode()
 
+
+"""
+
+    TODO:   
+    1) need to create a cache to store process 
+    2) check / compare and upadtyed the key 
+    3) add a fallback if process is not registeres ! 
+
+"""
