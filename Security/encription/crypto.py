@@ -10,6 +10,7 @@ from Elysium_Config.path_config import ELYSIUM_PATH
 import os 
 import logging
 import json
+from datetime import datetime
 
 ENCRYPTION_KEYS_PATH = f"{ELYSIUM_PATH}/Config/Security/encryption"
 ENCRYPTION_KEYS_LOG_PATH = f"{ELYSIUM_PATH}/Logs/Security/encryption"
@@ -31,7 +32,8 @@ def generate_key(process:str):
 
     new_entry = {
         "process": str(process),
-        "key": key.decode("utf-8")  
+        "key": key.decode("utf-8"),
+        "saved_at":str(datetime.now())
     }
 
     keys_file = f"{ENCRYPTION_KEYS_PATH}/keys.json"
@@ -42,17 +44,20 @@ def generate_key(process:str):
         data = []
 
     data.append(new_entry)
-
-    with open(keys_file, "w") as f:
-        json.dump(data, f, indent=2)
-
+    try:
+        with open(keys_file, "w") as f:
+         json.dump(data, f, indent=2)
+        logger.info("Key saved sucessfully")
+        return key
+    except Exception as e:
+        logger.error(f"failed to save key {e}")
 def encrypt(item,key):
     logging.info("encrypting key")
     key = Fernet(key)
-    return key.encrypt(item)
+    encrypted_data = key.encrypt(item)
+    return encrypted_data.decode('utf-8')
 def decrypt(item,key):
     logger.info("dencrypting key")
     key=Fernet(key)
     return key.decrypt(item).decode()
 
-generate_key(process="idk")
