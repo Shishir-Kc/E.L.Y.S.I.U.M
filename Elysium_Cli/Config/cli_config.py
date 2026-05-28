@@ -136,12 +136,12 @@ class Config:
                     logger.error(f"Something went south {e}")
     
     def input_config(self):
-        _key = generate_key(process="cli_config")
+        _key = generate_key(module="cli_config")
         config:dict[str,str]={} 
         try:
           model= self.load()['model']
         
-          for i,key in enumerate(model,start=1):
+          for _, key in enumerate(model,start=1):
             user_input = str(input(f"Enter {key} => "))
             if key == "api_key":
                     user_input = encrypt(item=user_input,key=_key)
