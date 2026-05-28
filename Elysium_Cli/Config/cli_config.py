@@ -7,6 +7,8 @@ import logging
 from pydantic import BaseModel
 import requests
 from Elysium_Config.path_config import BASEDIR, ELYSIUM_PATH
+from Security.encription.crypto import generate_key,encrypt,decrypt
+
 
 #
 # its logs will be under .config/Elysim/logs/cli
