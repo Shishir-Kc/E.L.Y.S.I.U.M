@@ -12,6 +12,7 @@ import argparse
 import requests
 from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven,ConfigFileMissing,ProviderNotFound
 from Elysium_Config.path_config import ELYSIUM_PATH
+from Security.encription.crypto import generate_key,encrypt,decrypt
 
 BASEDIR = f"{ELYSIUM_PATH}/Config/Model/"
 LOGDIR = f"{ELYSIUM_PATH}/Logs/Model"
@@ -21,14 +22,12 @@ paths=[BASEDIR,LOGDIR]
 for path in paths:
     os.makedirs(path,exist_ok=True)
 
-logger=logging.getLogger(__name__)
+logger=logging.getLogger("Elysium_config.model_config")
 
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s | %(name)s | %(levelname)s |  %(message)s",
     handlers=[
-        # uncomment it only in debug phase ! 
-        # logging.StreamHandler(), 
         logging.FileHandler(f"{LOGDIR}/model_config.log")
     ]
 )
@@ -82,13 +81,14 @@ class Elysium_Model_Config:
         return {}
 
     def available_providers(self)->dict:
+        logger.info("getting available providers ")
         providers ={}
-        for  i , provider  in enumerate(f'{self.load_config}',start=1):
+        for  i , provider  in enumerate(self.load_config().keys(),start=1):
             providers[i]=provider
         return providers
 
     def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
-         
+         key = generate_key(process="model_config")
          self.check_model_config_path()
           
          """
@@ -120,7 +120,7 @@ class Elysium_Model_Config:
          if not model:
             logger.error(f"{model_name} does not exists in {provider_name} config ")
             raise ModuleNotFoundError(f"Looks like {model_name} is not in {provider_name} config !")
-         model["api_key"] = api_key
+         model["api_key"] = encrypt(item=api_key.encode("utf-8"),key=key)
          with open(f"{BASEDIR}/{self.config_name}","w") as file:
             json.dump(model_config,file,indent=2)
             logger.info("applied custom api key ! ")
@@ -149,5 +149,4 @@ class Elysium_Model_Config:
  
 if __name__ == "__main__":    
     el = Elysium_Model_Config()
-    print("Use -h for more info ")
-
+    print("Use -h for more info ") 
