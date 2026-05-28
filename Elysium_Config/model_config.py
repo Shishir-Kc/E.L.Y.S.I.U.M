@@ -119,7 +119,7 @@ class Elysium_Model_Config:
          if not model:
             logger.error(f"{model_name} does not exists in {provider_name} config ")
             raise ModuleNotFoundError(f"Looks like {model_name} is not in {provider_name} config !")
-         model["api_key"] = encrypt(item=api_key.encode("utf-8"),key=key)
+         model["api_key"] = encrypt(item=api_key,key=key)
          with open(f"{BASEDIR}/{self.config_name}","w") as file:
             json.dump(model_config,file,indent=2)
             logger.info("applied custom api key ! ")
@@ -148,4 +148,4 @@ class Elysium_Model_Config:
  
 if __name__ == "__main__":    
     el = Elysium_Model_Config()
-    print("Use -h for more info ") 
+    print("Use -h for more info ")
