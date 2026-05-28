@@ -88,7 +88,7 @@ class Elysium_Model_Config:
         return providers
 
     def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
-         key = generate_key(process="model_config")
+         key = generate_key(module="model_config")
          self.check_model_config_path()
           
          """
