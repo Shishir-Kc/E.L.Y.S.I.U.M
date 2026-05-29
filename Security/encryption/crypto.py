@@ -1,0 +1,106 @@
+"""
+    generate_key() -> will generate_key and returns it in bytes ! 
+    encrypt() -> will encrypt key , arguments [item,key] 
+    dencrypt() -> will dencrypt key , arguments [item,key] 
+     
+"""
+
+from cryptography.fernet import Fernet
+from Elysium_Config.path_config import ELYSIUM_PATH
+import os 
+import logging
+import json
+from datetime import datetime
+import time as t
+
+ENCRYPTION_KEYS_PATH = f"{ELYSIUM_PATH}/Config/Security/encryption"
+ENCRYPTION_KEYS_LOG_PATH = f"{ELYSIUM_PATH}/Logs/Security/encryption"
+paths = [ENCRYPTION_KEYS_PATH,ENCRYPTION_KEYS_LOG_PATH]
+for path in paths:
+    if  not os.path.exists(path):
+     os.makedirs(path,exist_ok=True)
+logger = logging.getLogger('cryptography')
+logging.basicConfig(
+    level = logging.DEBUG,
+    format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
+    handlers=[
+        logging.FileHandler(f"{ENCRYPTION_KEYS_LOG_PATH}/cryptography.log")
+    ]
+)
+
+def preload_cache():
+    cache={}
+    try:
+     with open (f"{ENCRYPTION_KEYS_PATH}/keys.json",'r') as f:
+        keys=json.load(f)
+        for _,data in enumerate(keys,start=1):
+         cache[_]=data['module'] 
+         if data['module'] in cache[_]:
+               ...
+
+         
+    except FileNotFoundError:
+        logger.error("keys file is missing ! ")
+    print(cache)
+# preload_cache()
+
+def generate_key(module:str):
+    logging.info(f"creating key for  {module}")
+    try:
+     key = Fernet.generate_key()
+    except ValueError as e :
+        logger.error(f"Failed to generate key {e}")
+    new_entry = {
+        "module": str(module),
+        "key": key.decode("utf-8"),
+        "saved_at":str(datetime.now())
+    }
+
+    keys_file = f"{ENCRYPTION_KEYS_PATH}/keys.json"
+    if os.path.exists(keys_file):
+        with open(keys_file, "r") as f:
+            data = json.load(f)
+        for _index,i in enumerate(data,start=0):
+            if i['module'] == module:
+                logger.warning("module already exists updating old key")
+                data[_index]['key'] = key.decode('utf-8')
+                data[_index]['saved_at'] = str(datetime.now())
+                with open (keys_file,'w') as file:
+                    json.dump(data,file,indent=2)
+                print(data[_index]['key'],end="\r")
+                logger.info("updated old key")
+                return key  
+    else:
+        data = []
+
+    data.append(new_entry)
+    try:
+        with open(keys_file, "w") as f:
+         json.dump(data, f, indent=2)
+        logger.info("Key saved sucessfully")
+        return key
+    except Exception as e:
+        logger.error(f"failed to save key {e}")
+
+def encrypt(item,key):
+    logging.info("encrypting key")
+    item = item.encode("utf-8")
+    key = Fernet(key)
+    encrypted_data = key.encrypt(item)
+    return encrypted_data.decode('utf-8')
+def decrypt(item,key):
+    logger.info("dencrypting key")
+    key=Fernet(key)
+    return key.decrypt(item).decode()
+
+
+"""
+
+    todo:   
+    1) need to create a cache to store process 
+    2) check / compare and upadtyed the key 
+    3) add a fallback if process is not registeres ! 
+
+"""
+while True:
+    generate_key(module=__file__)
