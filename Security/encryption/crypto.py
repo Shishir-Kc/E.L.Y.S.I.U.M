@@ -53,7 +53,6 @@ def generate_key(module:str):
                 data[_index]['saved_at'] = str(datetime.now())
                 with open (keys_file,'w') as file:
                     json.dump(data,file,indent=2)
-                print(data[_index]['key'],end="\r")
                 logger.info("updated old key")
                 return key  
     else:
