@@ -12,7 +12,7 @@ import argparse
 import requests
 from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven,ConfigFileMissing,ProviderNotFound
 from Elysium_Config.path_config import ELYSIUM_PATH
-from Security.encription.crypto import generate_key,encrypt,decrypt
+from Security.encryption.crypto import generate_key,encrypt
 
 BASEDIR = f"{ELYSIUM_PATH}/Config/Model/"
 LOGDIR = f"{ELYSIUM_PATH}/Logs/Model"
@@ -88,7 +88,7 @@ class Elysium_Model_Config:
         return providers
 
     def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
-         key = generate_key(module="model_config")
+         key = generate_key(module=__file__)
          self.check_model_config_path()
           
          """
@@ -149,3 +149,4 @@ class Elysium_Model_Config:
 if __name__ == "__main__":    
     el = Elysium_Model_Config()
     print("Use -h for more info ")
+    el.insert_api_key(provider_name='google_genai',model_name="gemini-3.1-flash-lite",api_key="tetsingi")
