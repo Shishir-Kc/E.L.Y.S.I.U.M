@@ -15,7 +15,7 @@ import logging
 from pydantic import BaseModel
 import requests
 from Elysium_Config.path_config import BASEDIR, ELYSIUM_PATH
-from Security.encription.crypto import generate_key,encrypt
+from Security.encryption.crypto import generate_key,encrypt
 
 LOGDIR = f"{ELYSIUM_PATH}/Logs/cli"
 BASEDIR = f"{ELYSIUM_PATH}/Config/cli"
@@ -136,7 +136,7 @@ class Config:
                     logger.error(f"Something went south {e}")
     
     def input_config(self):
-        _key = generate_key(module="cli_config")
+        _key = generate_key(module=__file__)
         config:dict[str,str]={} 
         try:
           model= self.load()['model']
