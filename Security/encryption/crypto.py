@@ -28,21 +28,7 @@ logging.basicConfig(
     ]
 )
 
-def preload_cache():
-    cache={}
-    try:
-     with open (f"{ENCRYPTION_KEYS_PATH}/keys.json",'r') as f:
-        keys=json.load(f)
-        for _,data in enumerate(keys,start=1):
-         cache[_]=data['module'] 
-         if data['module'] in cache[_]:
-               ...
 
-         
-    except FileNotFoundError:
-        logger.error("keys file is missing ! ")
-    print(cache)
-# preload_cache()
 
 def generate_key(module:str):
     logging.info(f"creating key for  {module}")
@@ -93,14 +79,3 @@ def decrypt(item,key):
     key=Fernet(key)
     return key.decrypt(item).decode()
 
-
-"""
-
-    todo:   
-    1) need to create a cache to store process 
-    2) check / compare and upadtyed the key 
-    3) add a fallback if process is not registeres ! 
-
-"""
-while True:
-    generate_key(module=__file__)
