@@ -6,7 +6,7 @@
 """
 
 from cryptography.fernet import Fernet
-from Elysium_Config.path_config import ELYSIUM_PATH
+from ElysiumConfig.path_config import ELYSIUM_PATH
 import os 
 import logging
 import json
