@@ -11,7 +11,7 @@ import logging
 import argparse
 import requests
 from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven,ConfigFileMissing,ProviderNotFound
-from Elysium_Config.path_config import ELYSIUM_PATH
+from ElysiumConfig.path_config import ELYSIUM_PATH
 from Security.encryption.crypto import generate_key,encrypt
 
 BASEDIR = f"{ELYSIUM_PATH}/Config/Model/"
