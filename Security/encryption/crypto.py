@@ -11,10 +11,11 @@ import os
 import logging
 import json
 from datetime import datetime
-import time as t
+from Errors.errors import KeysNotFound
 
 ENCRYPTION_KEYS_PATH = f"{ELYSIUM_PATH}/Config/Security/encryption"
 ENCRYPTION_KEYS_LOG_PATH = f"{ELYSIUM_PATH}/Logs/Security/encryption"
+KEYS_PATH  = f"{ENCRYPTION_KEYS_PATH}/keys.json"
 paths = [ENCRYPTION_KEYS_PATH,ENCRYPTION_KEYS_LOG_PATH]
 for path in paths:
     if  not os.path.exists(path):
@@ -30,7 +31,7 @@ logging.basicConfig(
 
 
 
-def generate_key(module:str):
+def generate_key(module:str,provider_name:str="",model_name:str=""):
     logging.info(f"creating key for  {module}")
     try:
      key = Fernet.generate_key()
@@ -39,15 +40,17 @@ def generate_key(module:str):
     new_entry = {
         "module": str(module),
         "key": key.decode("utf-8"),
-        "saved_at":str(datetime.now())
+        "saved_at":str(datetime.now()),
+        "provider_name":provider_name,
+        "model_name":model_name
     }
 
-    keys_file = f"{ENCRYPTION_KEYS_PATH}/keys.json"
+    keys_file = KEYS_PATH
     if os.path.exists(keys_file):
         with open(keys_file, "r") as f:
             data = json.load(f)
         for _index,i in enumerate(data,start=0):
-            if i['module'] == module:
+            if i['model_name'] == model_name and i['provider_name'] == provider_name:
                 logger.warning("module already exists updating old key")
                 data[_index]['key'] = key.decode('utf-8')
                 data[_index]['saved_at'] = str(datetime.now())
@@ -73,8 +76,20 @@ def encrypt(item,key):
     key = Fernet(key)
     encrypted_data = key.encrypt(item)
     return encrypted_data.decode('utf-8')
+
 def decrypt(item,key):
     logger.info("dencrypting key")
     key=Fernet(key)
     return key.decrypt(item).decode()
 
+def getkey(provider_name,model_name):
+    with open(KEYS_PATH,'r') as f:
+        keys = json.load(f)
+    for key in keys:
+        if key.get('model_name') == model_name and key.get('provider_name') == provider_name: 
+            key_info= key.get('key', " ")
+            if not key_info:
+                raise KeysNotFound
+            return key_info
+    raise KeysNotFound
+    
