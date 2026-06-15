@@ -34,29 +34,37 @@ logging.basicConfig(
 
 class Elysium_Model_Config:
     def __init__(self) -> None:
-        self.config_name = "model_config.json" 
-        self.parser = argparse.ArgumentParser()
-        self.parser.add_argument('-download_config',action='store_true',help="downlads pre-defined model config ")
-        self.parser.add_argument('-make',action='store_true',help="make pre-defined model config")
-        self.parser.add_argument('-insert_api',action="store_true",help="update api key ")
-        self.args = self.parser.parse_args()
-        self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/main/Configs/Elysium_config/model_config.json"  
-        if self.args.download_config:
+        self.config_name = "model_config.json"  
+        self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/main/Configs/Elysium_config/model_config.json" 
+    
+    def cli_flags(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--download_config', action='store_true', help="downloads pre-defined model config")
+        parser.add_argument('--make', action='store_true', help="make pre-defined model config")
+        parser.add_argument('--insert_api', action="store_true", help="update api key")
+        args = parser.parse_args()
+
+        if args.download_config:
             logger.info("user started config installation")
             try:
-             self.download_config(url=input("Enter Custom Config URL or Leave It Empty => "))
+                self.download_config(url=input("Enter Custom Config URL or Leave It Empty => "))
             except KeyboardInterrupt:
-                logger.error("User cancled the installation ")
+                logger.error("User canceled the installation ")
             except Exception as e:
                 logger.error(f"something is not right ! {e}")
-        if self.args.make:
+                
+        if args.make:
             try:
                 self.check_model_config_path()
             except ConfigFileMissing:
                 self.download_config()
              
-        if self.args.insert_api:
-            self.insert_api_key(provider_name=input("provider_name: "),model_name=input("model_name: "),api_key=input("api_key: "))
+        if args.insert_api:
+            self.insert_api_key(
+                provider_name=input("provider_name: "),
+                model_name=input("model_name: "),
+                api_key=input("api_key: ")
+            )
     def check_model_config_path(self)->bool:
         if not os.path.exists(f"{BASEDIR}/{self.config_name}"):
             logger.warning(f"{self.config_name} does not exists !")
