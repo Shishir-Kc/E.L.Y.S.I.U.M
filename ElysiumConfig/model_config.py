@@ -12,7 +12,7 @@ import argparse
 import requests
 from Errors.errors import ProviderNotGiven,ModelNameNotGiven,ApiKeyNotGiven,ConfigFileMissing,ProviderNotFound
 from ElysiumConfig.path_config import ELYSIUM_PATH
-from Security.encryption.crypto import generate_key,encrypt
+from Security.encryption.crypto import generate_key,encrypt,decrypt,getkey
 
 BASEDIR = f"{ELYSIUM_PATH}/Config/Model/"
 LOGDIR = f"{ELYSIUM_PATH}/Logs/Model"
@@ -55,8 +55,8 @@ class Elysium_Model_Config:
             except ConfigFileMissing:
                 self.download_config()
              
-        #self.pre_load_config =self.load_config()
-
+        if self.args.insert_api:
+            self.insert_api_key(provider_name=input("provider_name: "),model_name=input("model_name: "),api_key=input("api_key: "))
     def check_model_config_path(self)->bool:
         if not os.path.exists(f"{BASEDIR}/{self.config_name}"):
             logger.warning(f"{self.config_name} does not exists !")
@@ -88,7 +88,7 @@ class Elysium_Model_Config:
         return providers
 
     def insert_api_key(self,provider_name:str,model_name:str,api_key:str)->bool:
-         key = generate_key(module=__file__)
+         key = generate_key(module=__file__,provider_name=provider_name,model_name=model_name)
          self.check_model_config_path()
           
          """
@@ -145,8 +145,19 @@ class Elysium_Model_Config:
          logger.error(f"Connection Error checks the logs ! {e}")
         except Exception as e:
                 logger.error(f"Something went south ! {e}")
+
+    def load_model(self,required_provider:str,required_model:str):
+        config = self.load_config()
+        provider_config = config.get(required_provider,{})
+        model = provider_config.get(required_model)
+        model_apikey = model.get('api_key',"")
+        key =  getkey(provider_name=required_provider,model_name=required_model)
+        return {
+            "api_key":decrypt(item=model_apikey,key=key),
+            "provider":required_provider,     
+            "model":required_model,
+            }
  
 if __name__ == "__main__":    
     el = Elysium_Model_Config()
     print("Use -h for more info ")
-    el.insert_api_key(provider_name='google_genai',model_name="gemini-3.1-flash-lite",api_key="tetsingi")
