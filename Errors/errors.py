@@ -11,3 +11,5 @@ class ProviderNotFound(Exception):
     pass
 class DirectoryNotGiven(Exception):
     pass
+class KeysNotFound(Exception):
+    pass
