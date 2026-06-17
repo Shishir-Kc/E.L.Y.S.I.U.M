@@ -5,5 +5,9 @@
     "Skill_path": ".config/E.L.Y.S.I.U.M/SKills",
     "Memory_path": ".config/E.L.Y.S.I.U.M/Memory",
     "Config_path": ".config/E.L.Y.S.I.U.M/Config"
+  },
+  "elysium_additionals_path": {
+    "Root_path": ".config/E.L.Y.S.I.U.M/Additionals/",
+    "Memory": ".config/E.L.Y.S.I.U.M/Additionals/Memory"
   }
 }
