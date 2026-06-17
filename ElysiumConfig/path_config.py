@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 import os
 import json
@@ -5,7 +6,15 @@ import requests
 
 BASEDIR = Path(__file__).parent
 GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
+logger = logging.getLogger("ElysiumConfig.path_config")
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="| %(levelname)s | %(asctime)s | %(name)s | %(message)s |" ,
+    handlers=[
+        logging.StreamHandler()
+    ]
 
+)
 
 def get_elysium_path(of:str=""):
     with open(GENERAL_CONFIG_PATH,"r") as data:        
@@ -17,9 +26,14 @@ def get_elysium_path(of:str=""):
 ELYSIUM_PATH= f"{Path.home()}/{get_elysium_path(of="Root_path")}"
 
 
-def check_for_eLysium_path()-> bool:
+def check_for_eLysium_path(path:str="")-> bool:
+    elysium_path = path
+    if not path:
+        elysium_path = ELYSIUM_PATH    
+   
+    logger.info(elysium_path)
     try:
-        if os.path.exists(ELYSIUM_PATH):
+        if os.path.exists(elysium_path):
             return True
         else:
             return False
@@ -27,24 +41,26 @@ def check_for_eLysium_path()-> bool:
         print(e)
         return False
 
-def show_elysium_paths()->dict:
+def show_elysium_paths(all:bool=False)->dict:
     paths = {}
     with open(GENERAL_CONFIG_PATH,"r") as file:
         data = json.load(file)
-    elysium_paths = data.get("elysium_paths",{})
-    for i ,path_name in enumerate(elysium_paths,start=1):
-        paths[i] = path_name
-    return paths
+    elysium_paths = data
+    if not all:
+        for i ,path_name in enumerate(elysium_paths,start=1):
+         paths[i] = path_name
+        return paths
+    return data
 
 def download_config(dir:str,url:str)-> bool:
     if dir=="" or url=="":
         raise Exception ("dir or url is not provided !")
-    
-    dir = f"{ELYSIUM_PATH}/{dir}"
+    file_name = Path(url).name
+    path = f"{dir}/{file_name}"
     try:
         response = requests.get(url)
 
-        with open(dir,'w')as data:
+        with open(path,'w')as data:
             json.dump(response.json(),data,indent=2)
         return True
     except requests.ConnectTimeout:
@@ -58,6 +74,3 @@ def download_config(dir:str,url:str)-> bool:
     return False 
 
 
-# download_config(dir=str(input("dir:>")),url=str(input("URL : > ")))
-# print(load_elysium_paths())
-# print(show_elysium_paths())
