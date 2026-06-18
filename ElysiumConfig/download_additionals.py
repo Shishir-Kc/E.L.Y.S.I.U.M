@@ -1,3 +1,20 @@
+"""
+This file contains code for doewnloading config / checking config  version / updating config 
+Mainly the config is for E.L.Y.S.I.U.M Additionals (  ' plug and play ' ) architecture .
+Furter more EL can automatically / independently call these methods / function as tools ,
+so it can decide when to update .
+The additionals code is in sepereate repo of the developer called Elysium_additionals 
+Link : https://github.com/Shishir-Kc/Elysium_additionals , developer might move the code to
+personal hosted server for the additionals.
+
+What is additionals ?
+
+well in simple terms Additionals is a way for EL to learn and controll new skills or tools to improve its performance, 
+Additionals can we configured according to user liking , base version of E.Y.S.I.U.M will not contain all the functionality of Additionals
+but it can be downloaded manually by cli or just ask el to download it  
+
+"""
+
 import  logging
 import os
 from pathlib import Path 
