@@ -52,14 +52,15 @@ def show_elysium_paths(all:bool=False)->dict:
         return paths
     return data
 
-def download_config(dir:str,url:str)-> bool:
+def download_config(dir:str,url:str,download:bool=True)-> bool:
     if dir=="" or url=="":
         raise Exception ("dir or url is not provided !")
     file_name = Path(url).name
     path = f"{dir}/{file_name}"
     try:
         response = requests.get(url)
-
+        if not download:
+            return response.json()
         with open(path,'w')as data:
             json.dump(response.json(),data,indent=2)
         return True
