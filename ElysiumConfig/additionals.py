@@ -107,10 +107,21 @@ class Additionals:
         pass
     
     def check_update(self):
-        LOCALCONFIG = self.additionals()
-        CLOUDCONFIG = download_additionals_config(download=False)
-        print(" LOCAL: " , LOCALCONFIG)
-        return CLOUDCONFIG
+        updates={}
+        LocalConfig = self.additionals()
+        localconfig = list(LocalConfig)
+        CloudConfig = download_additionals_config(download=False)
+        logger.info("Checking for updates ")
+        for _ , additional in enumerate(LocalConfig,start=0):
+            if LocalConfig[additional]['version'] < CloudConfig[additional]['version']: #type:ignore
+                updates[localconfig[_]] = CloudConfig[additional] #type:ignore
+                logger.info(f"update available for {localconfig[_]}") 
+        if not updates:
+            updates = {
+                "status":"Up_to_date"
+            }
+            logger.info("Additionals are up to date")
+        return updates
 
 additionals = Additionals()
-print("CLOUD :",additionals.check_update())
+print(additionals.check_update())
