@@ -1,3 +1,10 @@
+"""
+This file contains Path config stuff some functions are :
+to download config / to check for path / to get path 
+"""
+
+
+
 import logging
 from pathlib import Path
 import os
@@ -73,5 +80,3 @@ def download_config(dir:str,url:str,download:bool=True):
     except Exception as e:
         print(f"Some thing went wrong ! {e}")
     return False 
-
-
