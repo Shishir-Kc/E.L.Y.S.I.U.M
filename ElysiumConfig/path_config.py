@@ -52,7 +52,7 @@ def show_elysium_paths(all:bool=False)->dict:
         return paths
     return data
 
-def download_config(dir:str,url:str,download:bool=True)-> bool:
+def download_config(dir:str,url:str,download:bool=True):
     if dir=="" or url=="":
         raise Exception ("dir or url is not provided !")
     file_name = Path(url).name
