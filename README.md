@@ -9,6 +9,7 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **AI & Agents**: openai
 - **Encryption**: cryptography
 - **TUI**: textual
+- **Utilities**: tqdm
 - **Package Manager**: uv
 
 ### Planned/Aspirational
@@ -64,8 +65,9 @@ E.L.Y.S.I.U.M/
 │   ├── __init__.py            # Validates ~/.config/E.L.Y.S.I.U.M/ existence on import
 │   ├── model_config.py        # AI model configuration manager (with encryption)
 │   ├── path_config.py         # Path mapping config loader & GitHub downloader
-│   ├── config.json            # Base system metadata JSON
-│   └── path_config.json       # Predefined local path settings
+│   ├── additionals.py         # Additionals plug-and-play skill/tool downloader & updater
+│   ├── config.json            # Base system metadata JSON (+ additionals config URL)
+│   └── path_config.json       # Predefined local path settings (+ additionals paths)
 │
 ├── Security/                  # Security & encryption modules
 │   └── encryption/
@@ -101,11 +103,12 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import; raises `ConfigFileMissing` if not found |
+| `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import via `path_config.check_for_eLysium_path()`; raises `ConfigFileMissing` if not found |
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
-| `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega) |
-| `path_config.py` | Core path management, path listing, and GitHub config downloader |
-| `path_config.json` | Predefined directory path mapping configurations (Root, Log, Skill, Memory, Config) |
+| `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
+| `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega) plus `elysium_additionals_config` with download URL |
+| `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
+| `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
 ### `ElysiumCli/` - CLI Tool
 
@@ -153,7 +156,7 @@ E.L.Y.S.I.U.M/
 ## Code Flow
 
 1. **CLI Startup** (`ElysiumCli/main.py`):
-   - Loads `internal/core/core.py` logic
+   - Loads `internal/core/core.py` logic (directly imports `NvidiaAgent`, `Load_Agent` from `Agents.nvidia` and `Elysium_Model_Config` from `ElysiumConfig.model_config`)
    - Reads user input via `input()` prompt (`:>`)
    - Routes commands: `help` → available commands list, `-chat` → NvidiaAgent interactive loop, `-download_config` → download model config, `-insert_api` → insert API key interactively
    - Exit with `e`
@@ -192,6 +195,13 @@ E.L.Y.S.I.U.M/
    - `worker` class (placeholder) designed for threaded background task execution
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
 
+8. **Additionals Flow** (`ElysiumConfig/additionals.py`):
+   - On import, loads `config.json` to get `elysium_additionals_config` with download URL
+   - Resolves additionals root path from `path_config.json` (`~/.config/E.L.Y.S.I.U.M/Additionals/`)
+   - `download_additionals_config()` fetches config from the `Elysium_additionals` GitHub repo
+   - `Additionals.check_update()` compares local vs cloud config versions; returns available updates or `"Up_to_date"`
+   - If additionals config is missing on import, auto-downloads it
+
 ---
 
 ## Running the Server / CLI
@@ -229,15 +239,24 @@ python ElysiumCli/Config/cli_config.py -add_config
 ```
 
 ### Model Configuration Flags
+
+Standalone script (double-dash flags):
 ```bash
 # Download model config from GitHub (or custom URL)
-python ElysiumConfig/model_config.py -download_config
+python ElysiumConfig/model_config.py --download_config
 
 # Ensure model config exists (downloads if missing)
-python ElysiumConfig/model_config.py -make
+python ElysiumConfig/model_config.py --make
 
 # Insert/update an API key for a provider/model
-python ElysiumConfig/model_config.py -insert_api
+python ElysiumConfig/model_config.py --insert_api
+```
+
+From CLI REPL (single-dash commands):
+```bash
+# Same operations available inside the CLI
+:> -download_config
+:> -insert_api
 ```
 
 ### Backend / Worker
@@ -279,4 +298,6 @@ SMTP_PASS=your_password
 - **Encryption Keys**: stored at `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
 - **Worker Config**: stored at `~/.config/E.L.Y.S.I.U.M/Config/worker/`
 - **Worker Preview**: `Workers/workers_preview.json` (startup config)
+- **Additionals Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Additionals/config.json` via `path_config.py`; auto-downloaded from `Elysium_additionals` repo if missing
+- **Additionals Root**: stored at `~/.config/E.L.Y.S.I.U.M/Additionals/`
 - **Package Manager**: uv
