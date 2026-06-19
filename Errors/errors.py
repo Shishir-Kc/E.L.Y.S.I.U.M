@@ -13,3 +13,6 @@ class DirectoryNotGiven(Exception):
     pass
 class KeysNotFound(Exception):
     pass
+
+class AdditionalsNotFound(Exception):
+    pass
