@@ -151,4 +151,4 @@ class Additionals:
  
 
 additionals = Additionals()
-print(additionals.download(additional="SASDASD"))
+print(additionals.download(additional="SuperMemory"))
