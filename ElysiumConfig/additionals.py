@@ -19,7 +19,7 @@ import  logging
 import os
 from pathlib import Path 
 import json
-from Errors.errors import ConfigFileMissing
+from Errors.errors import AdditionalsNotFound, ConfigFileMissing
 from .path_config import (download_config,show_elysium_paths,
 check_for_eLysium_path,BASEDIR)
 
@@ -102,10 +102,7 @@ class Additionals:
         with open(ADDITIONALSCONFIG,'r')as f:
             data = json.load(f)
         return data
-
-    def download(self):
-        pass
-    
+   
     def check_update(self):
         updates={}
         LocalConfig = self.additionals()
@@ -123,5 +120,35 @@ class Additionals:
             logger.info("Additionals are up to date")
         return updates
 
+    
+    def download(self,update:bool=False,additional:str=""):
+        if update:
+            update_info= self.check_update()
+            if update_info.get("status",{}) == "Up_to_date":
+             return {
+                "status":"Up_to_date"
+            }
+        if not additional:
+            return {
+                "status":"No_additionals_provided"
+            }
+        additionals = self.additionals() 
+        additionalinfo = additionals.get(additional,{})
+        if not additionalinfo:
+            raise AdditionalsNotFound 
+        additional_dir = HOMEDIR/additionalinfo.get("path","")
+        os.makedirs(additional_dir,exist_ok=True)
+        additional_download_url = additionalinfo.get("download_url","")
+        response = download_config(url=additional_download_url,dir=additional_dir)
+        dependencys =  additionalinfo.get("dependency",{})
+        dependencylist = list(dependencys)
+        if dependencys:
+            logger.info(f"Found dependencys for {additional}")
+            for _ , dependency in enumerate(dependencys):
+                download_config(dir=additional_dir,url=dependencys.get(dependency)['download_url'])
+                logger.info(f"Downloading Dependency: {dependencylist[_]}") 
+        return response
+ 
+
 additionals = Additionals()
-print(additionals.check_update())
+print(additionals.download(additional="SASDASD"))
