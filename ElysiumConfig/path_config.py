@@ -64,12 +64,18 @@ def download_config(dir:str,url:str,download:bool=True):
         raise Exception ("dir or url is not provided !")
     file_name = Path(url).name
     path = f"{dir}/{file_name}"
+    is_json = file_name.endswith(".json")
+    logger.info(path)
     try:
         response = requests.get(url)
+        response.raise_for_status()
         if not download:
-            return response.json()
+            return response.json() if is_json else response.text
         with open(path,'w')as data:
-            json.dump(response.json(),data,indent=2)
+            if is_json:
+                json.dump(response.json(),data,indent=2)
+            else:
+                data.write(response.text)
         return True
     except requests.ConnectTimeout:
         raise Exception ("timed out")
