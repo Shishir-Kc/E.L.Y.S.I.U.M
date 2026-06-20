@@ -16,3 +16,9 @@ class KeysNotFound(Exception):
 
 class AdditionalsNotFound(Exception):
     pass
+
+class AdditionalsNotInstalled(Exception):
+    def __init__(self, additional: str = ""):
+        super().__init__(f"Additional '{additional}' is not installed")
+
+
