@@ -194,12 +194,62 @@ E.L.Y.S.I.U.M/
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
 
 8. **Additionals Flow** (`ElysiumConfig/additionals.py`):
-   - On import, loads `config.json` to get `elysium_additionals_config` with download URL
-   - Resolves additionals root path from `path_config.json` (`~/.config/E.L.Y.S.I.U.M/Additionals/`)
-   - `download_additionals_config()` fetches config from the `Elysium_additionals` GitHub repo
-   - `Additionals.check_update()` compares local vs cloud config versions; returns available updates or `"Up_to_date"`
-   - `Additionals.download(update=False, additional="")` downloads a specific additional by name (e.g., `"SuperMemory"`), fetches its dependency files from the repo, and optionally checks for updates first
-   - If additionals config is missing on import, auto-downloads it
+
+   **Overview** — The Additionals system is a plug-and-play skill/tool downloader that lets E.L.Y.S.I.U.M learn new capabilities at runtime. Additionals are defined in a separate [`Elysium_additionals`](https://github.com/Shishir-Kc/Elysium_additionals) repo.
+
+   **Import-time Initialization** (runs automatically when the module is first imported):
+   - `load_additiosnals_config()` reads `ElysiumConfig/config.json` to get `elysium_additionals_config.download_url`
+   - `show_elysium_paths(all=True)` resolves additionals paths from `path_config.json`
+   - `ADDITIONALSROOTPATH` set to `~/.config/E.L.Y.S.I.U.M/Additionals/`
+   - If `Additionals/config.json` is missing locally, auto-downloads it from the GitHub repo
+   - Module-level `additionals = Additionals()` singleton is created
+
+   **Workflow Diagram:**
+   ```
+   GitHub Elysium_additionals repo
+            │
+            ▼
+   download_additionals_config()   ──►  ~/.../Additionals/config.json
+            │                                     │
+            ▼                                     ▼
+   Additionals.check_update()     compares     Local additionals config
+            │                       versions     (each entry has a version field)
+            ▼
+   Returns dict of available updates
+            │
+            ▼
+   Additionals.download(additional="SuperMemory")
+      1. _update_config() — merges cloud version into local config
+      2. Creates additional directory from `path` field
+      3. Downloads main additional files via download_config()
+      4. Iterates `dependency` list — downloads each dependency
+      5. _write_downloaded_additionals() — logs to settings.json
+   ```
+
+   **`Additionals` Class Methods:**
+
+   | Method | Description |
+   |--------|-------------|
+   | `additionals()` | Returns `dict` of all additionals from local `config.json` |
+   | `check_update()` | Downloads cloud config, compares each `version` field against local. Returns `{"status": "Up_to_date"}` or `{name: cloud_config}` for outdated entries (skips uninstalled additionals) |
+   | `download(update, additional)` | Core downloader. If `update=True`, validates additional is installed first. Downloads main files + all dependencies into `<Additionals>/<name>/`. Records in `settings.json`. Returns response |
+   | `update()` | Calls `check_update()`, then iterates outdated additionals calling `download(update=True)` for each |
+   | `_read_downloaded_additionals()` | Reads `settings.json` → `list` of installed additional names |
+   | `_write_downloaded_additionals(additional)` | Appends a name to `settings.json` |
+   | `_update_config(additional)` | Merges cloud version of a single additional into local config |
+
+   **Config File Structure:**
+   - `~/.config/E.L.Y.S.I.U.M/Additionals/config.json` — Main additionals registry (each entry: `version`, `path`, `download_url`, `dependency` map)
+   - `~/.config/E.L.Y.S.I.U.M/Additionals/settings.json` — Simple JSON array of installed additional names
+   - `<Additionals>/<name>/` — Per-additional directory with downloaded skill/tool files
+
+   **AI Agent Integration:** The module is designed so EL (the AI) can call `Additionals.download()` / `Additionals.update()` as tools, enabling autonomous decision-making about when to acquire new skills.
+
+   **Error Handling:**
+   - `ConfigFileMissing` — raised if `elysium_additionals_config` is missing from base config
+   - `AdditionalsNotFound` — raised if requested additional name is not in the registry
+   - `AdditionalsNotInstalled` — raised when `update=True` but additional hasn't been downloaded yet
+   - Network errors from `download_config()` on timeouts or HTTP failures
 
 ---
 
@@ -284,6 +334,8 @@ uv run uvicorn main:elysium_server --reload
 - **Encryption Keys**: stored at `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
 - **Worker Config**: stored at `~/.config/E.L.Y.S.I.U.M/Config/worker/`
 - **Worker Preview**: `Workers/workers_preview.json` (startup config)
-- **Additionals Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Additionals/config.json` via `path_config.py`; auto-downloaded from `Elysium_additionals` repo if missing
-- **Additionals Root**: stored at `~/.config/E.L.Y.S.I.U.M/Additionals/`
+- **Additionals Config**: `~/.config/E.L.Y.S.I.U.M/Additionals/config.json` — auto-downloaded from `Elysium_additionals` repo on import (if missing)
+- **Additionals Settings**: `~/.config/E.L.Y.S.I.U.M/Additionals/settings.json` — tracks which additionals have been installed
+- **Additionals Root**: `~/.config/E.L.Y.S.I.U.M/Additionals/` — parent directory for all per-additional subdirectories
+- **Per-additional Directories**: `~/.config/E.L.Y.S.I.U.M/Additionals/<name>/` — contains downloaded skill/tool files for each additional
 - **Package Manager**: uv
