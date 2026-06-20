@@ -19,7 +19,9 @@ import  logging
 import os
 from pathlib import Path 
 import json
-from Errors.errors import AdditionalsNotFound, ConfigFileMissing
+from threading import local
+from time import sleep
+from Errors.errors import AdditionalsNotFound, AdditionalsNotInstalled, ConfigFileMissing
 from .path_config import (download_config,show_elysium_paths,
 check_for_eLysium_path,BASEDIR)
 
@@ -74,10 +76,14 @@ def download_additionals_config(download:bool=True):
             logger.info("Got Additionals CLOUDCONFIG ") 
             return configs
      logger.info("Additionals downloaded sucessfully") 
-     return True
+     return {
+            "status":"sucessfull"
+        }
     except Exception as e:
         logger.error(e)
-        return False
+        return {
+            "status":e
+        }
 
 logger.info("Getting Additionals Config ")
 ADDITIONALSCONFIG = f"{HOMEDIR}/{all_paths.get("additionals_config",{}).get("Config_path",{})}"
@@ -88,6 +94,7 @@ if not Path(ADDITIONALSCONFIG).exists():
     download_additionals_config()
 logger.info(f"Additionals Config: : : {ADDITIONALSCONFIG}")
 
+ADDITIONALSSETTING = f"{ADDITIONALSROOTPATH}/settings.json"
 
 
 logger.info("Checking additionals path")
@@ -111,6 +118,8 @@ class Additionals:
         logger.info("Checking for updates ")
         for _ , additional in enumerate(LocalConfig,start=0):
             if LocalConfig[additional]['version'] < CloudConfig[additional]['version']: #type:ignore
+                if localconfig[_] not in self._read_downloaded_additionals():
+                    continue 
                 updates[localconfig[_]] = CloudConfig[additional] #type:ignore
                 logger.info(f"update available for {localconfig[_]}") 
         if not updates:
@@ -120,18 +129,61 @@ class Additionals:
             logger.info("Additionals are up to date")
         return updates
 
+    def _write_downloaded_additionals(self, additional: str):
+     try:
+        try:
+            with open(ADDITIONALSSETTING, "r") as f:
+                data: list = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = []
+
+        data.append(additional)
+
+        with open(ADDITIONALSSETTING, "w") as f:
+            json.dump(data, f, indent=2)
+
+        logger.info(f"Additional '{additional}' saved to settings")
+     except Exception as e:
+        logger.error(f"Failed to save additional: {e}")    
     
-    def download(self,update:bool=False,additional:str=""):
+    def _read_downloaded_additionals(self):
+        try:
+         with open(ADDITIONALSSETTING,"r") as f:
+            setting = json.load(f)
+         logger.info("Reading setting")
+         return list(setting)
+        except Exception as e:
+            logger.error(e)
+            return []
+    def _update_config(self,additional):
+        cloud_config = download_additionals_config(download=False)
+        local_config = self.additionals()
+        cloud_additional_info = cloud_config.get(additional,{})#type:ignore
+        local_config[additional]=cloud_additional_info 
+        with open(ADDITIONALSCONFIG,"w") as file:
+            logger.info("Downloading New Config ")
+            json.dump(local_config,file,indent=2)
+
+    def download(self,update:bool=False,additional:str=""): 
         if update:
-            update_info= self.check_update()
-            if update_info.get("status",{}) == "Up_to_date":
-             return {
-                "status":"Up_to_date"
-            }
+          try:
+            if additional not in self._read_downloaded_additionals():
+                raise AdditionalsNotInstalled(additional)
+            self._update_config(additional=additional)
+          except Exception as e:
+                logger.error(e)
+                return
         if not additional:
             return {
                 "status":"No_additionals_provided"
             }
+        if additional in self._read_downloaded_additionals():
+            return {
+                "status":"Already_downloaded"
+            }
+        self._update_config(additional=additional)
+        logger.info("Downloaded New Config") 
+        logger.info(f"Updating {additional}")
         additionals = self.additionals() 
         additionalinfo = additionals.get(additional,{})
         if not additionalinfo:
@@ -147,8 +199,18 @@ class Additionals:
             for _ , dependency in enumerate(dependencys):
                 download_config(dir=additional_dir,url=dependencys.get(dependency)['download_url'])
                 logger.info(f"Downloading Dependency: {dependencylist[_]}") 
+        self._write_downloaded_additionals(additional=additional) #type:ignore
         return response
- 
+
+    def update(self):
+        updates = self.check_update()
+        if updates.get('status',"") == "Up_to_date":
+            return updates
+        for _ , additional in enumerate(updates,start=1):
+            logger.info(f"Updating:  {_} | {additional}")
+            download_update = self.download(additional=additional,update=True)
 
 additionals = Additionals()
-print(additionals.download(additional="SuperMemory"))
+print(additionals.download(additional="Sentinel"))
+# additionals.update()
+# additionals.check_update()
