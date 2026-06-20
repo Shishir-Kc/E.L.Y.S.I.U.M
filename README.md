@@ -9,7 +9,6 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **AI & Agents**: openai
 - **Encryption**: cryptography
 - **TUI**: textual
-- **Utilities**: tqdm
 - **Package Manager**: uv
 
 ### Planned/Aspirational
@@ -19,7 +18,7 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **Email**: aiosmtplib
 - **Audio**: pyaudio, sounddevice, webrtcvad-wheels
 - **System Monitoring**: psutil
-- **Utilities**: numpy, rich
+- **Utilities**: numpy, rich, tqdm
 
 ---
 
@@ -33,7 +32,7 @@ E.L.Y.S.I.U.M/
 ├── pyproject.toml             # Project metadata and dependencies
 ├── requirements.txt           # Pinned Python dependencies (20 packages)
 ├── install.sh                 # Project installation script
-├── .env                       # Environment variables
+
 │
 ├── Agents/                    # AI Agent implementations
 │   ├── __init__.py            # Load_Agent class (config initialization, model roulette)
@@ -97,7 +96,6 @@ E.L.Y.S.I.U.M/
 | `install.sh` | Installation and environment setup script |
 | `.python-version` | Specifies Python version (3.12) |
 | `.gitignore` | Git ignore rules |
-| `.env` | Environment variables for SMTP, AI APIs, etc. |
 
 ### `ElysiumConfig/` - Configuration
 
@@ -106,7 +104,7 @@ E.L.Y.S.I.U.M/
 | `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import via `path_config.check_for_eLysium_path()`; raises `ConfigFileMissing` if not found |
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
-| `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega) plus `elysium_additionals_config` with download URL |
+| `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega-mini, stable: False) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
@@ -149,7 +147,7 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `Errors/errors.py` | Server-level exceptions (`ProviderNotGiven`, `ModelNameNotGiven`, `ApiKeyNotGiven`, `ConfigFileMissing`, `ProviderNotFound`, `DirectoryNotGiven`, `KeysNotFound`) |
+| `Errors/errors.py` | Server-level exceptions (`ProviderNotGiven`, `ModelNameNotGiven`, `ApiKeyNotGiven`, `ConfigFileMissing`, `ProviderNotFound`, `DirectoryNotGiven`, `KeysNotFound`, `AdditionalsNotFound`) |
 
 ---
 
@@ -174,7 +172,7 @@ E.L.Y.S.I.U.M/
    - `load_model(required_provider, required_model)` returns decrypted API key with provider/model info
 
 4. **AI Agent Flow** (`Agents/__init__.py`):
-   - `Load_Agent` class initializes `Elysium_Model_Config` on instantiation
+   - `Load_Agent` class (defined in `Agents/__init__.py`, re-exported via `Agents/nvidia.py`) initializes `Elysium_Model_Config` on instantiation
    - `model_roulet(priority_provider="")` returns a random model/provider pair, with optional priority provider
    - `model_key(provider, model)` retrieves and decrypts the API key via `getkey()` + `decrypt()`
 
@@ -200,6 +198,7 @@ E.L.Y.S.I.U.M/
    - Resolves additionals root path from `path_config.json` (`~/.config/E.L.Y.S.I.U.M/Additionals/`)
    - `download_additionals_config()` fetches config from the `Elysium_additionals` GitHub repo
    - `Additionals.check_update()` compares local vs cloud config versions; returns available updates or `"Up_to_date"`
+   - `Additionals.download(update=False, additional="")` downloads a specific additional by name (e.g., `"SuperMemory"`), fetches its dependency files from the repo, and optionally checks for updates first
    - If additionals config is missing on import, auto-downloads it
 
 ---
@@ -272,19 +271,6 @@ uv run celery -A Elysium_Celery.config worker --loglevel=info
 
 # Start FastAPI server (when server module is created)
 uv run uvicorn main:elysium_server --reload
-```
-
----
-
-## Environment Variables (.env)
-
-```
-GROQ_API=your_groq_api_key
-GEMINI_API_KEY=your_gemini_api_key
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your_email@example.com
-SMTP_PASS=your_password
 ```
 
 ---
