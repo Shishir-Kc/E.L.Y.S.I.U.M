@@ -5,3 +5,10 @@ neither the less check updated methoid will run every instance
 
 
 """
+
+
+class Updater:
+    def __init__(self) -> None:
+        pass
+    
+
