@@ -65,6 +65,7 @@ E.L.Y.S.I.U.M/
 │   ├── model_config.py        # AI model configuration manager (with encryption)
 │   ├── path_config.py         # Path mapping config loader & GitHub downloader
 │   ├── additionals.py         # Additionals plug-and-play skill/tool downloader & updater
+│   ├── updater.py             # Updater class — E.L.Y.S.I.U.M version check & auto-update (stub)
 │   ├── config.json            # Base system metadata JSON (+ additionals config URL)
 │   └── path_config.json       # Predefined local path settings (+ additionals paths)
 │
@@ -104,6 +105,7 @@ E.L.Y.S.I.U.M/
 | `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import via `path_config.check_for_eLysium_path()`; raises `ConfigFileMissing` if not found |
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
+| `updater.py` | `Updater` class for E.L.Y.S.I.U.M version checking and auto-updating. Designed so the agent can self-update at will or when prompted by the user; `check_update` is intended to run every instance (currently a stub) |
 | `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega-mini, stable: False) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
@@ -193,7 +195,13 @@ E.L.Y.S.I.U.M/
    - `worker` class (placeholder) designed for threaded background task execution
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
 
-8. **Additionals Flow** (`ElysiumConfig/additionals.py`):
+8. **Updater Flow** (`ElysiumConfig/updater.py`):
+   - `Updater` class handles E.L.Y.S.I.U.M version checking and updating
+   - Designed to be callable by the AI agent for autonomous self-updates, or triggered by user prompts
+   - `check_update` method is intended to run on every instance to detect new versions
+   - Currently a stub (`__init__` only); implementation pending
+
+9. **Additionals Flow** (`ElysiumConfig/additionals.py`):
 
    **Overview** — The Additionals system is a plug-and-play skill/tool downloader that lets E.L.Y.S.I.U.M learn new capabilities at runtime. Additionals are defined in a separate [`Elysium_additionals`](https://github.com/Shishir-Kc/Elysium_additionals) repo.
 
