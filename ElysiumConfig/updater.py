@@ -40,7 +40,6 @@ class Updater:
       logger.info("Getting Cloud Config") 
       try:
            localconfig = self._read_local_config()
-           logger.info(localconfig)
            metadata = localconfig.get("elysium",{})      
            config_url = metadata.get("url","")
            logger.info("Capturing Cloud Config")
@@ -55,15 +54,27 @@ class Updater:
             return{}
 
     def check_update(self):
-       updater = {} 
+       updates = {} 
        Localconfig = self._read_local_config()
        CloudConfig = self._get_cloud_config()
        LocalMetadata = Localconfig.get("elysium",{})
        CloudMetadata = CloudConfig.get("elysium",{})
        if LocalMetadata['version'] < CloudMetadata['version']:
             logger.info("Update is Available")
+            updates["version"] = CloudMetadata['version']
             if LocalMetadata['version_name'] != CloudMetadata['version_name']:
                 logger.info("Major Update is Available!")
+                updates['version_name'] = CloudMetadata['version_name']
+            updates['stable'] = False 
+            if CloudMetadata['stable'] == True:
+             updates['stable'] = True
+            updates['url'] = CloudMetadata['url']
+            updates['repo'] = CloudMetadata['repo']
+            updates['latest_changes'] = CloudMetadata['last_development_changes']
+            return updates
+       else:
+            logger.info("No update available ")
+            return updates
 
 
 updater = Updater()
