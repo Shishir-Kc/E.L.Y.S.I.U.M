@@ -25,7 +25,7 @@ from Errors.errors import AdditionalsNotFound, AdditionalsNotInstalled, ConfigFi
 from .path_config import (download_config,show_elysium_paths,
 check_for_eLysium_path,BASEDIR)
 
-logger = logging.getLogger('ElysiumConfig.download_additionals')
+logger = logging.getLogger('ElysiumConfig.download_a1dditionals')
 
 CONFIGPATH = f"{BASEDIR}/config.json" # Path for config.json of ElysiumConfig
 HOMEDIR = Path.home()
