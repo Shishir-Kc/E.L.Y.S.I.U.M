@@ -65,9 +65,12 @@ E.L.Y.S.I.U.M/
 │   ├── model_config.py        # AI model configuration manager (with encryption)
 │   ├── path_config.py         # Path mapping config loader & GitHub downloader
 │   ├── additionals.py         # Additionals plug-and-play skill/tool downloader & updater
-│   ├── updater.py             # Updater class — E.L.Y.S.I.U.M version check & auto-update (stub)
+│   ├── updater.py             # Updater class — E.L.Y.S.I.U.M version check (local vs cloud config)
 │   ├── config.json            # Base system metadata JSON (+ additionals config URL)
 │   └── path_config.json       # Predefined local path settings (+ additionals paths)
+│
+├── Linux/                     # Linux-native functionality (package placeholder)
+│   └── __init__.py            # Package init
 │
 ├── Security/                  # Security & encryption modules
 │   └── encryption/
@@ -105,8 +108,8 @@ E.L.Y.S.I.U.M/
 | `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import via `path_config.check_for_eLysium_path()`; raises `ConfigFileMissing` if not found |
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
-| `updater.py` | `Updater` class for E.L.Y.S.I.U.M version checking and auto-updating. Designed so the agent can self-update at will or when prompted by the user; `check_update` is intended to run every instance (currently a stub) |
-| `config.json` | Base system metadata (version: 0.0.1, status: development, version_name: omega-mini, stable: False) plus `elysium_additionals_config` with download URL |
+| `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict (`version`, `version_name`, `stable`, `url`, `repo`, `latest_changes`) when a newer version exists, otherwise `{}`. A module-level `Updater()` runs `check_update()` on import, so a version check fires every instance. Designed so the agent can self-update at will or when the user prompts it |
+| `config.json` | Base system metadata (version: 0.0.3, status: development, version_name: omega-cooper, stable: False, `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
@@ -150,6 +153,12 @@ E.L.Y.S.I.U.M/
 | File | Purpose |
 |------|---------|
 | `Errors/errors.py` | Server-level exceptions (`ProviderNotGiven`, `ModelNameNotGiven`, `ApiKeyNotGiven`, `ConfigFileMissing`, `ProviderNotFound`, `DirectoryNotGiven`, `KeysNotFound`, `AdditionalsNotFound`) |
+
+### `Linux/` - Linux-Native
+
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Package init for the `Linux/` namespace reserved for Linux-native functionality (currently a placeholder) |
 
 ---
 
@@ -196,10 +205,12 @@ E.L.Y.S.I.U.M/
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
 
 8. **Updater Flow** (`ElysiumConfig/updater.py`):
-   - `Updater` class handles E.L.Y.S.I.U.M version checking and updating
-   - Designed to be callable by the AI agent for autonomous self-updates, or triggered by user prompts
-   - `check_update` method is intended to run on every instance to detect new versions
-   - Currently a stub (`__init__` only); implementation pending
+   - `Updater.__init__()` sets `LOCALCONFIG` to `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json` and eagerly fetches `CLOUDCONFIG` via `_get_cloud_config()`
+   - `_read_local_config()` loads the local `config.json`
+   - `_get_cloud_config()` reads the `elysium.url` field from the local config and `requests.get()`s the cloud `config.json`; returns `{}` on any error (logged at DEBUG)
+   - `check_update()` compares `LocalMetadata['version']` against `CloudMetadata['version']`; if the cloud version is newer, it logs "Update is Available" (and "Major Update is Available!" when the `version_name` also changed) and returns an `updates` dict containing `version`, `version_name`, `stable`, `url`, `repo`, and `latest_changes`; otherwise logs "No update available" and returns `{}`
+   - A module-level `updater = Updater(); updater.check_update()` runs at import time, so a version check fires on every instance the module is loaded
+   - Designed so the AI agent can call `Updater` for autonomous self-updates, or be triggered by user prompts
 
 9. **Additionals Flow** (`ElysiumConfig/additionals.py`):
 
