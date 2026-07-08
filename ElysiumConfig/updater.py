@@ -5,13 +5,14 @@ neither the less check updated methoid will run every instance
 
 
 """
+
 from pathlib import Path
 import os
 import json
-from time import sleep
 import requests
-from .path_config import GENERAL_CONFIG_PATH
 import logging
+import shutil
+import subprocess
 
 logger = logging.getLogger("ElysiumConfig.updater")
 
@@ -24,8 +25,8 @@ logging.basicConfig(
 )
 
 class Updater:
-    def __init__(self) -> None:
-            
+    def __init__(self) -> None: 
+        self.ELYSIUM_ROOT = Path.home() / ".E.L.Y.S.I.U.M"
         self.LOCALCONFIG = Path.home() / ".E.L.Y.S.I.U.M/ElysiumConfig/config.json"
         self.CLOUDCONFIG =  self._get_cloud_config()
 
@@ -76,6 +77,37 @@ class Updater:
             logger.info("No update available ")
             return updates
 
+    def update_elysium(self):
+        """ 
+        This method will download and update E.L.Y.S.I.U.M automatically
+        if it detects new version ! 
+        1) It will delete the old version
+        2) clones the new version from master branch
+        3) update done
+        """
+
+
+        logger.info("Looking For Updates ")
+        update_metadata = self.check_update()
+        if not update_metadata:
+            logger.info("No Updates Found")
+            return update_metadata
+        if not os.path.exists(self.ELYSIUM_ROOT):
+            logger.info("E.L.Y.S.I.U.M Is Not Installed ")
+            raise Exception ("E.L.Y.S.I.U.M Does Not Exists ")
+        logger.warning("Deleting Old version")
+        try:
+            shutil.rmtree(self.ELYSIUM_ROOT) 
+            logger.info("Old Version Deleted ")
+        except Exception as e:
+            logger.error(f"Some Error Occured While Deleting Old Versio {e}")
+        try:
+            logger.info("Downloading Update")
+            subprocess.run(['git','clone',update_metadata['repo'],self.ELYSIUM_ROOT])
+            logger.info("Update Downloaded")
+        except Exception as e:
+            logger.error(f"Something Went Wrong while updating{e}")
 
 updater = Updater()
-updater.check_update()
+# print(updater.check_update())
+updater.update_elysium()
