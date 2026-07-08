@@ -96,14 +96,19 @@ class Updater:
             logger.info("E.L.Y.S.I.U.M Is Not Installed ")
             raise Exception ("E.L.Y.S.I.U.M Does Not Exists ")
         logger.warning("Deleting Old version")
+        homedir = os.path.expanduser("~")
+        os.chdir(homedir)
         try:
-            shutil.rmtree(self.ELYSIUM_ROOT) 
+            for entry in os.scandir(self.ELYSIUM_ROOT):
+             if entry.is_dir(follow_symlinks=False):
+                shutil.rmtree(entry.path)
+             else:
+                os.remove(entry.path)
             logger.info("Old Version Deleted ")
         except Exception as e:
             logger.error(f"Some Error Occured While Deleting Old Versio {e}")
         try:
             logger.info("Downloading Update")
-            os.mkdir(self.ELYSIUM_ROOT)
             subprocess.run(['git','clone',update_metadata['repo'],self.ELYSIUM_ROOT],check=True) 
         except Exception as e:
             logger.error(f"Something Went Wrong while updating{e}")
