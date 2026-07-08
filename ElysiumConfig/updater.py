@@ -113,6 +113,10 @@ class Updater:
         except Exception as e:
             logger.error(f"Something Went Wrong while updating{e}")
         logger.info("Update Downloaded")
+        logger.info("Syncing UP ")
+        os.chdir(self.ELYSIUM_ROOT)
+        subprocess.run(['uv','sync'],check=True)
+        logger.info("Sync Process Completed ")
 updater = Updater()
 # print(updater.check_update())
 updater.update_elysium()
