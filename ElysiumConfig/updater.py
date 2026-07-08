@@ -103,11 +103,11 @@ class Updater:
             logger.error(f"Some Error Occured While Deleting Old Versio {e}")
         try:
             logger.info("Downloading Update")
-            subprocess.run(['git','clone',update_metadata['repo'],self.ELYSIUM_ROOT])
-            logger.info("Update Downloaded")
+            os.mkdir(self.ELYSIUM_ROOT)
+            subprocess.run(['git','clone',update_metadata['repo'],self.ELYSIUM_ROOT],check=True) 
         except Exception as e:
             logger.error(f"Something Went Wrong while updating{e}")
-
+        logger.info("Update Downloaded")
 updater = Updater()
 # print(updater.check_update())
 updater.update_elysium()
