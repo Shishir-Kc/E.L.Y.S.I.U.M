@@ -8,11 +8,11 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **Core**: pydantic, python-dotenv, requests
 - **AI & Agents**: openai
 - **Encryption**: cryptography
-- **TUI**: textual
+- **Framework**: fastapi[standard]
 - **Package Manager**: uv
 
 ### Planned/Aspirational
-- **Framework**: FastAPI (standard), Typer, Textual (TUI)
+- **Framework**: Typer, Textual (TUI)
 - **AI & Agents**: LangChain, LangChain-Groq, LangChain-Ollama, LangGraph
 - **Task Queue**: Celery with Redis
 - **Email**: aiosmtplib
@@ -29,10 +29,14 @@ E.L.Y.S.I.U.M/
 ├── .python-version            # Python version specification (3.12)
 ├── .gitignore                 # Git ignore rules
 ├── uv.lock                    # uv dependency lockfile
-├── pyproject.toml             # Project metadata and dependencies
-├── requirements.txt           # Pinned Python dependencies (20 packages)
+├── pyproject.toml             # Project metadata and dependencies (uv)
 ├── install.sh                 # Project installation script
 
+│
+├── Server/                    # FastAPI web server
+│   ├── __init__.py            # Package init
+│   ├── main.py                # FastAPI app (lifespan, SSE, WebSocket)
+│   └── routes/                # Route blueprints (placeholder)
 │
 ├── Agents/                    # AI Agent implementations
 │   ├── __init__.py            # Load_Agent class (config initialization, model roulette)
@@ -94,12 +98,19 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.1) |
-| `requirements.txt` | Pinned Python dependencies (20 packages) |
+| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.4) |
 | `uv.lock` | uv dependency lockfile |
 | `install.sh` | Installation and environment setup script |
 | `.python-version` | Specifies Python version (3.12) |
 | `.gitignore` | Git ignore rules |
+
+### `Server/` - FastAPI Web Server
+
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Package init |
+| `main.py` | FastAPI application with `lifespan` handler, `GET /` health check, `GET /read` SSE log streaming endpoint, `WebSocket /ws` echo endpoint |
+| `routes/` | Route blueprint directory (currently empty, placeholder for future API routes) |
 
 ### `ElysiumConfig/` - Configuration
 
@@ -108,8 +119,8 @@ E.L.Y.S.I.U.M/
 | `__init__.py` | Validates `~/.config/E.L.Y.S.I.U.M/` exists on import via `path_config.check_for_eLysium_path()`; raises `ConfigFileMissing` if not found |
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
-| `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict (`version`, `version_name`, `stable`, `url`, `repo`, `latest_changes`) when a newer version exists, otherwise `{}`. A module-level `Updater()` runs `check_update()` on import, so a version check fires every instance. Designed so the agent can self-update at will or when the user prompts it |
-| `config.json` | Base system metadata (version: 0.0.3, status: development, version_name: omega-cooper, stable: False, `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo) plus `elysium_additionals_config` with download URL |
+| `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict; `update_elysium()` orchestrates the full update (delete old, clone repo, `uv sync`). A module-level `Updater()` runs `update_elysium()` on import. Designed so the agent can self-update at will or when the user prompts it |
+| `config.json` | Base system metadata (version: 0.0.4, status: development, version_name: omega-cooper, stable: False, `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
@@ -182,37 +193,45 @@ E.L.Y.S.I.U.M/
    - `insert_api_key(provider_name, model_name, api_key)` generates encryption key and stores encrypted API key
    - `load_model(required_provider, required_model)` returns decrypted API key with provider/model info
 
-4. **AI Agent Flow** (`Agents/__init__.py`):
+4. **FastAPI Server Flow** (`Server/main.py`):
+   - `lifespan` context manager logs server boot on startup
+   - `GET /` returns `{"status": 200}` health check
+   - `GET /read` streams server log file via SSE (`text/event-stream`) using `StreamingResponse` + `logstream()` generator
+   - `WebSocket /ws` accepts connections and echoes received text
+   - `routes/` directory reserved for future API route blueprints
+
+5. **AI Agent Flow** (`Agents/__init__.py`):
    - `Load_Agent` class (defined in `Agents/__init__.py`, re-exported via `Agents/nvidia.py`) initializes `Elysium_Model_Config` on instantiation
    - `model_roulet(priority_provider="")` returns a random model/provider pair, with optional priority provider
    - `model_key(provider, model)` retrieves and decrypts the API key via `getkey()` + `decrypt()`
 
-5. **NvidiaAgent Flow** (`Agents/nvidia.py`):
+6. **NvidiaAgent Flow** (`Agents/nvidia.py`):
    - `NvidiaAgent.__init__(agent)` calls `model_roulet(priority_provider="nvidia")` to select a random NVIDIA model
    - Creates an `OpenAI` client configured with `base_url="https://integrate.api.nvidia.com/v1"`
    - `chat(prompt)` calls the OpenAI Responses API with `reasoning={'effort': 'high'}` and returns `response.output_text`
 
-6. **Encryption Flow** (`Security/encryption/crypto.py`):
+7. **Encryption Flow** (`Security/encryption/crypto.py`):
    - `generate_key(module, provider_name, model_name)` creates a Fernet key, stores it in `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
    - Duplicate provider+model detection updates existing keys rather than creating duplicates
    - `encrypt(item, key)` / `decrypt(item, key)` wrap Fernet symmetric encryption
    - `getkey(provider_name, model_name)` looks up key from `keys.json` by provider+model; raises `KeysNotFound` if missing
    - Used by `model_config.py` and `cli_config.py` to encrypt stored API keys
 
-7. **Worker Flow** (`Workers/worker.py`):
+8. **Worker Flow** (`Workers/worker.py`):
    - On import, auto-creates `~/.config/E.L.Y.S.I.U.M/Config/worker/` and `Logs/worker/` directories
    - `worker` class (placeholder) designed for threaded background task execution
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
 
-8. **Updater Flow** (`ElysiumConfig/updater.py`):
+9. **Updater Flow** (`ElysiumConfig/updater.py`):
    - `Updater.__init__()` sets `LOCALCONFIG` to `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json` and eagerly fetches `CLOUDCONFIG` via `_get_cloud_config()`
    - `_read_local_config()` loads the local `config.json`
    - `_get_cloud_config()` reads the `elysium.url` field from the local config and `requests.get()`s the cloud `config.json`; returns `{}` on any error (logged at DEBUG)
    - `check_update()` compares `LocalMetadata['version']` against `CloudMetadata['version']`; if the cloud version is newer, it logs "Update is Available" (and "Major Update is Available!" when the `version_name` also changed) and returns an `updates` dict containing `version`, `version_name`, `stable`, `url`, `repo`, and `latest_changes`; otherwise logs "No update available" and returns `{}`
-   - A module-level `updater = Updater(); updater.check_update()` runs at import time, so a version check fires on every instance the module is loaded
+   - An `update_elysium()` method orchestrates the full update: checks for updates, deletes the old `~/.E.L.Y.S.I.U.M/` directory, clones the latest from GitHub, and runs `uv sync` to reinstall dependencies
+   - A module-level `updater = Updater(); updater.update_elysium()` runs at import time, so an auto-update fires on every instance the module is loaded
    - Designed so the AI agent can call `Updater` for autonomous self-updates, or be triggered by user prompts
 
-9. **Additionals Flow** (`ElysiumConfig/additionals.py`):
+10. **Additionals Flow** (`ElysiumConfig/additionals.py`):
 
    **Overview** — The Additionals system is a plug-and-play skill/tool downloader that lets E.L.Y.S.I.U.M learn new capabilities at runtime. Additionals are defined in a separate [`Elysium_additionals`](https://github.com/Shishir-Kc/Elysium_additionals) repo.
 
@@ -327,9 +346,21 @@ From CLI REPL (single-dash commands):
 :> -insert_api
 ```
 
-### Backend / Worker
+### FastAPI Server
 
-> **Note**: Celery and FastAPI server modules are not yet implemented. Dependencies are listed in `pyproject.toml` for future use.
+```bash
+# Start the FastAPI server (auto-reload enabled for development)
+uv run uvicorn Server.main:server --reload
+```
+
+**Endpoints:**
+- `GET /` — Health check (returns `{"status": 200}`)
+- `GET /read` — SSE log streaming endpoint
+- `WebSocket /ws` — Echo WebSocket
+
+### Worker
+
+> **Note**: Celery worker module is not yet implemented. Dependencies are listed in `pyproject.toml` for future use.
 
 ```bash
 # Start Redis (required for Celery, when implemented)
@@ -337,9 +368,6 @@ redis-server
 
 # Start Celery worker (when Elysium_Celery module is created)
 uv run celery -A Elysium_Celery.config worker --loglevel=info
-
-# Start FastAPI server (when server module is created)
-uv run uvicorn main:elysium_server --reload
 ```
 
 ---
@@ -349,6 +377,8 @@ uv run uvicorn main:elysium_server --reload
 - **CLI Entry**: `ElysiumCli/main.py`
 - **General Config**: `ElysiumConfig/config.json`
 - **Model Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Config/Model/model_config.json` via `path_config.py`
+- **Server Entry**: `Server/main.py`
+- **Server Routes**: `Server/routes/` (placeholder for future API blueprints)
 - **CLI Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Config/cli/config.json` via `cli_config.py`
 - **Encryption Keys**: stored at `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
 - **Worker Config**: stored at `~/.config/E.L.Y.S.I.U.M/Config/worker/`
