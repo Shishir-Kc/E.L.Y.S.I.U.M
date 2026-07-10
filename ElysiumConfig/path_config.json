@@ -12,5 +12,8 @@
   },
   "additionals_config": {
     "Config_path": ".config/E.L.Y.S.I.U.M/Additionals/config.json"
+  },
+  "elysium": {
+    "config": "ElysiumConfig/config.json"
   }
 }
