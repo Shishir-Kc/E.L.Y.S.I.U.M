@@ -44,7 +44,7 @@ def version_name(args=None):
     logger.info(f"version_name : {name}")
     return name 
 def is_stable(args=None):
-    stable = readconfig().get("status",{}) 
+    stable = readconfig().get("stable",{}) 
     logger.info(f"Is_stable : {stable}")
     return stable
 
