@@ -117,6 +117,4 @@ class Updater:
         os.chdir(self.ELYSIUM_ROOT)
         subprocess.run(['uv','sync'],check=True)
         logger.info("Sync Process Completed ")
-updater = Updater()
-# print(updater.check_update())
-updater.update_elysium()
+
