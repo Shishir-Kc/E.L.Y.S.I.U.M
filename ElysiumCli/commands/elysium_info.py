@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+
 
 from pathlib import Path
 from ElysiumConfig.path_config import show_elysium_paths
@@ -10,7 +10,7 @@ from ElysiumConfig.updater import Updater
 
 logger = logging.getLogger("Commands.elysium_info")
 
-el_updater = Updater()
+
 
 HOMEDIR = Path.home()
 configdata = show_elysium_paths(all=True).get("elysium",{})
@@ -60,10 +60,12 @@ def elysium_info(args=None):
     """)
 
 def check_verison(args=None):
+    el_updater = Updater()
     update = el_updater.check_update()
     logger.info(f"Update Status : {update}")
     return update
 
 def update(args:None):
+   el_updater = Updater()
    el_updater.update_elysium()
 
