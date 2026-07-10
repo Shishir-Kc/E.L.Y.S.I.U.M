@@ -1,13 +1,52 @@
-from internal.core.core import main
+"""
+This file will be the reason for the Cli commands ! 
 
-# soo here is a story i want to make this cli ai based and looking at future integration C aint gonna cut it 
-# so i am chnaging to python again ! i know this is a 3rd shift in lang but hey i want a function cli ok! and 
-# it will be agentic . and also i might add functionEL tomorrow for logical execution of the command ! 
-#
+"""
+import argparse
+from ElysiumCli.commands.elysium_info import (
+    version , status ,
+    last_development_changes , version_name ,
+    is_stable , elysium_info , check_verison ,
+    update
+)
 
 
+def build_parser():
+    parser = argparse.ArgumentParser(prog="E.L.Y.S.I.U.M")
+    subparser = parser.add_subparsers(dest="command")
 
+    version_parser = subparser.add_parser("version")
+    version_parser.set_defaults(func=version)
+   
+    status_parser = subparser.add_parser("status")
+    status_parser.set_defaults(func=status)
 
+    dev_parser =  subparser.add_parser("dev")
+    dev_parser.set_defaults(func=last_development_changes)
+    
+    version_name_parser = subparser.add_parser("version_name")
+    version_name_parser.set_defaults(func=version_name)
+
+    stable_parser = subparser.add_parser("is_stable")
+    stable_parser.set_defaults(func=is_stable)
+
+    el_parser = subparser.add_parser("info")
+    el_parser.set_defaults(func=elysium_info)
+
+    version_checker_parser = subparser.add_parser("check_version")
+    version_checker_parser.set_defaults(func=check_verison)
+
+    update_parser = subparser.add_parser("update")
+    update_parser.set_defaults(func=update)
+    return parser
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    if hasattr(args, "func"):
+        args.func(args)
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
