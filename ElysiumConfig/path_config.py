@@ -37,8 +37,6 @@ def check_for_eLysium_path(path:str="")-> bool:
     elysium_path = path
     if not path:
         elysium_path = ELYSIUM_PATH    
-   
-    logger.info(elysium_path)
     try:
         if os.path.exists(elysium_path):
             return True
