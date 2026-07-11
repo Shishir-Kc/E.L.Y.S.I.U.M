@@ -5,10 +5,10 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 ## Technology Stack
 
 ### Active Dependencies
-- **Core**: pydantic, python-dotenv, requests
-- **AI & Agents**: openai
-- **Encryption**: cryptography
-- **Framework**: fastapi[standard]
+- **Core**: pydantic>=2.12.5, python-dotenv>=1.2.2, requests>=2.32.5
+- **AI & Agents**: openai>=2.41.1
+- **Encryption**: cryptography>=49.0.0
+- **Framework**: fastapi[standard]>=0.139.0
 - **Package Manager**: uv
 
 ### Planned/Aspirational
@@ -52,10 +52,8 @@ E.L.Y.S.I.U.M/
 │   │   ├── config.json        # Default CLI settings
 │   │   └── config.log         # CLI activity log
 │   ├── commands/              # CLI commands
-│   │   ├── help/
-│   │   │   └── help.py        # Help command (stub)
-│   │   └── system_info/
-│   │       └── sys_info.py    # System info command (stub)
+│   │   ├── __init__.py        # Package init
+│   │   └── elysium_info.py    # Version/status/info/update commands
 │   ├── external/              # External integrations (placeholder)
 │   └── internal/              # Core modules
 │       ├── __init__.py        # Exports custom exceptions
@@ -98,7 +96,7 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.4) |
+| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.6) |
 | `uv.lock` | uv dependency lockfile |
 | `install.sh` | Installation and environment setup script |
 | `.python-version` | Specifies Python version (3.12) |
@@ -120,7 +118,7 @@ E.L.Y.S.I.U.M/
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
 | `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict; `update_elysium()` orchestrates the full update (delete old, clone repo, `uv sync`). A module-level `Updater()` runs `update_elysium()` on import. Designed so the agent can self-update at will or when the user prompts it |
-| `config.json` | Base system metadata (version: 0.0.4, status: development, version_name: omega-cooper, stable: False, `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo) plus `elysium_additionals_config` with download URL |
+| `config.json` | Base system metadata (version: 0.0.6, status: development, version_name: omega-cooper, stable: "False", `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo, `last_development_changes`) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
@@ -128,13 +126,14 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `main.py` | CLI entry point |
-| `internal/core/core.py` | Core CLI REPL loop (`:>` prompt) and command routing (`-chat`, `help`, `-download_config`, `-insert_api`) |
+| `main.py` | CLI entry point — argparse-based with subcommands (version, status, dev, version_name, is_stable, info, check_version, update) |
+| `internal/core/core.py` | Legacy CLI REPL loop (`:>` prompt) and command routing (currently unused by `main.py`) |
 | `internal/__init__.py` | Exports `ConfigNotFound`, `InvalidArgsFound` exceptions |
 | `internal/Errors/errors.py` | CLI-specific exceptions (`ConfigNotFound`, `InvalidArgsFound`) |
 | `Config/cli_config.py` | CLI-specific configuration management with Pydantic validation, encryption, argparse flags (`-make`, `-over_ride`, `-add_config`) |
-| `commands/help/help.py` | Help command implementation |
-| `commands/system_info/sys_info.py` | System info command (stub) |
+| `Config/config.log` | CLI activity log |
+| `commands/__init__.py` | Package init |
+| `commands/elysium_info.py` | Version/status/info/update command implementations (reads `config.json`, calls `Updater`) |
 
 ### `Agents/` - AI Agents
 
@@ -163,7 +162,7 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `Errors/errors.py` | Server-level exceptions (`ProviderNotGiven`, `ModelNameNotGiven`, `ApiKeyNotGiven`, `ConfigFileMissing`, `ProviderNotFound`, `DirectoryNotGiven`, `KeysNotFound`, `AdditionalsNotFound`) |
+| `Errors/errors.py` | Server-level exceptions (`ProviderNotGiven`, `ModelNameNotGiven`, `ApiKeyNotGiven`, `ConfigFileMissing`, `ProviderNotFound`, `DirectoryNotGiven`, `KeysNotFound`, `AdditionalsNotFound`, `AdditionalsNotInstalled`) |
 
 ### `Linux/` - Linux-Native
 
@@ -176,10 +175,11 @@ E.L.Y.S.I.U.M/
 ## Code Flow
 
 1. **CLI Startup** (`ElysiumCli/main.py`):
-   - Loads `internal/core/core.py` logic (directly imports `NvidiaAgent`, `Load_Agent` from `Agents.nvidia` and `Elysium_Model_Config` from `ElysiumConfig.model_config`)
-   - Reads user input via `input()` prompt (`:>`)
-   - Routes commands: `help` → available commands list, `-chat` → NvidiaAgent interactive loop, `-download_config` → download model config, `-insert_api` → insert API key interactively
-   - Exit with `e`
+   - Builds an `argparse` parser with subcommands via `build_parser()`
+   - Imports from `ElysiumCli.commands.elysium_info` for all subcommand implementations
+   - Supports 8 subcommands: `version`, `status`, `dev`, `version_name`, `is_stable`, `info`, `check_version`, `update`
+   - Also supports a `-test` debug flag
+   - The legacy REPL (`internal/core/core.py` with `:>` prompt, `-chat`, `-download_config`, `-insert_api`) is no longer wired to the entry point
 
 2. **Configuration Initialization** (`ElysiumConfig/__init__.py`):
    - Validates `~/.config/E.L.Y.S.I.U.M/` exists on import
@@ -195,9 +195,9 @@ E.L.Y.S.I.U.M/
 
 4. **FastAPI Server Flow** (`Server/main.py`):
    - `lifespan` context manager logs server boot on startup
-   - `GET /` returns `{"status": 200}` health check
-   - `GET /read` streams server log file via SSE (`text/event-stream`) using `StreamingResponse` + `logstream()` generator
-   - `WebSocket /ws` accepts connections and echoes received text
+   - `GET /` returns `{"status": 200}` health check (uses `status.HTTP_200_OK`)
+   - `GET /read` streams log file via SSE (`text/event-stream`) using `StreamingResponse` + `logstream()` generator; sources from `~/test/server.log`
+   - `WebSocket /ws` accepts connections and echoes received text with `"Echo = {data}"` prefix
    - `routes/` directory reserved for future API route blueprints
 
 5. **AI Agent Flow** (`Agents/__init__.py`):
@@ -219,8 +219,9 @@ E.L.Y.S.I.U.M/
 
 8. **Worker Flow** (`Workers/worker.py`):
    - On import, auto-creates `~/.config/E.L.Y.S.I.U.M/Config/worker/` and `Logs/worker/` directories
-   - `worker` class (placeholder) designed for threaded background task execution
+   - `worker` class with stub methods: `check_config`, `add_config`, `stats`, `load_config`
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
+   - **Note**: Contains stale imports (`Elysium_Config` instead of `ElysiumConfig`) — currently non-functional without fixes
 
 9. **Updater Flow** (`ElysiumConfig/updater.py`):
    - `Updater.__init__()` sets `LOCALCONFIG` to `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json` and eagerly fetches `CLOUDCONFIG` via `_get_cloud_config()`
@@ -236,7 +237,7 @@ E.L.Y.S.I.U.M/
    **Overview** — The Additionals system is a plug-and-play skill/tool downloader that lets E.L.Y.S.I.U.M learn new capabilities at runtime. Additionals are defined in a separate [`Elysium_additionals`](https://github.com/Shishir-Kc/Elysium_additionals) repo.
 
    **Import-time Initialization** (runs automatically when the module is first imported):
-   - `load_additiosnals_config()` reads `ElysiumConfig/config.json` to get `elysium_additionals_config.download_url`
+   - `load_additionals_config()` reads `ElysiumConfig/config.json` to get `elysium_additionals_config.download_url`
    - `show_elysium_paths(all=True)` resolves additionals paths from `path_config.json`
    - `ADDITIONALSROOTPATH` set to `~/.config/E.L.Y.S.I.U.M/Additionals/`
    - If `Additionals/config.json` is missing locally, auto-downloads it from the GitHub repo
@@ -270,7 +271,7 @@ E.L.Y.S.I.U.M/
    |--------|-------------|
    | `additionals()` | Returns `dict` of all additionals from local `config.json` |
    | `check_update()` | Downloads cloud config, compares each `version` field against local. Returns `{"status": "Up_to_date"}` or `{name: cloud_config}` for outdated entries (skips uninstalled additionals) |
-   | `download(update, additional)` | Core downloader. If `update=True`, validates additional is installed first. Downloads main files + all dependencies into `<Additionals>/<name>/`. Records in `settings.json`. Returns response |
+   | `download(update, additional)` | Core downloader. If `update=True`, validates additional is installed first. Downloads main files + all dependencies into `<Additionals>/<name>/`. Records in `settings.json`. Returns response. When `download=False`, returns cloud config data without writing to disk |
    | `update()` | Calls `check_update()`, then iterates outdated additionals calling `download(update=True)` for each |
    | `_read_downloaded_additionals()` | Reads `settings.json` → `list` of installed additional names |
    | `_write_downloaded_additionals(additional)` | Appends a name to `settings.json` |
@@ -299,17 +300,28 @@ chmod +x install.sh
 ./install.sh
 ```
 
+The installation script creates a `romeo` CLI launcher at `~/.local/bin/romeo` and adds `~/.local/bin` to your `PATH` via `.bashrc`. It also provides an interactive upgrade workflow (Reinstall/Upgrade/Quit).
+
 ### CLI
 ```bash
 # Run the CLI directly
-python ElysiumCli/main.py
+python ElysiumCli/main.py <subcommand>
 ```
 
-**Commands:**
-- `help` - Display available commands
-- `-chat` - Start an interactive chat with an NVIDIA LLM via NvidiaAgent
-- `-download_config` - Download model configuration (prompts for URL)
-- `-insert_api` - Insert/update an API key for a provider/model
+**Subcommands:**
+| Command | Description |
+|---------|-------------|
+| `version` | Display current version from `config.json` |
+| `status` | Display development status |
+| `dev` | Display last development changes date |
+| `version_name` | Display version name (e.g. omega-cooper) |
+| `is_stable` | Check if current version is stable |
+| `info` | Print all metadata (version, name, stable, dev changes) |
+| `check_version` | Check cloud for available updates |
+| `update` | Perform a full self-update (delete old, clone repo, `uv sync`) |
+
+**Debug flag:**
+- `-test` — Prints "etst" (debug/test flag)
 
 > **Note**: `[project.scripts]` in `pyproject.toml` is currently empty. No `uv run` shortcut available yet.
 
@@ -327,7 +339,6 @@ python ElysiumCli/Config/cli_config.py -add_config
 
 ### Model Configuration Flags
 
-Standalone script (double-dash flags):
 ```bash
 # Download model config from GitHub (or custom URL)
 python ElysiumConfig/model_config.py --download_config
@@ -337,13 +348,6 @@ python ElysiumConfig/model_config.py --make
 
 # Insert/update an API key for a provider/model
 python ElysiumConfig/model_config.py --insert_api
-```
-
-From CLI REPL (single-dash commands):
-```bash
-# Same operations available inside the CLI
-:> -download_config
-:> -insert_api
 ```
 
 ### FastAPI Server
