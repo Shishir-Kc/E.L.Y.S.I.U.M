@@ -36,7 +36,8 @@ class Elysium_Model_Config:
     def __init__(self) -> None:
         self.config_name = "model_config.json"  
         self.default_config_url="https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/main/Configs/Elysium_config/model_config.json" 
-    
+        
+
     def cli_flags(self):
         parser = argparse.ArgumentParser()
         parser.add_argument('--download_config', action='store_true', help="downloads pre-defined model config")
@@ -65,6 +66,7 @@ class Elysium_Model_Config:
                 model_name=input("model_name: "),
                 api_key=input("api_key: ")
             )
+
     def check_model_config_path(self)->bool:
         if not os.path.exists(f"{BASEDIR}/{self.config_name}"):
             logger.warning(f"{self.config_name} does not exists !")
@@ -157,7 +159,10 @@ class Elysium_Model_Config:
     def load_model(self,required_provider:str,required_model:str):
         config = self.load_config()
         provider_config = config.get(required_provider,{})
+        if not provider_config:
+            raise ProviderNotFound
         model = provider_config.get(required_model)
+        
         model_apikey = model.get('api_key',"")
         key =  getkey(provider_name=required_provider,model_name=required_model)
         return {
@@ -168,4 +173,5 @@ class Elysium_Model_Config:
  
 if __name__ == "__main__":    
     el = Elysium_Model_Config()
+    el.cli_flags()
     print("Use -h for more info ")
