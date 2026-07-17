@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""
-This file will be the reason for the Cli commands ! 
+""" This file will be the reason for the Cli commands ! """
 
-"""
 import argparse
 from ElysiumCli.commands.elysium_info import (
     version , status ,
     last_development_changes , version_name ,
-    is_stable , elysium_info , check_verison ,
+    is_stable , elysium_info , check_version  ,
     update
 )
 
+def test(args):
+    print("etst")
 
-def build_parser():
+def build_parser(): 
     parser = argparse.ArgumentParser(prog="E.L.Y.S.I.U.M")
     subparser = parser.add_subparsers(dest="command")
+
+    parser.add_argument("-test",action="store_true")
+    parser.set_defaults(func=test)
 
     version_parser = subparser.add_parser("version")
     version_parser.set_defaults(func=version)
@@ -35,7 +38,7 @@ def build_parser():
     el_parser.set_defaults(func=elysium_info)
 
     version_checker_parser = subparser.add_parser("check_version")
-    version_checker_parser.set_defaults(func=check_verison)
+    version_checker_parser.set_defaults(func=check_version)
 
     update_parser = subparser.add_parser("update")
     update_parser.set_defaults(func=update)
