@@ -9,12 +9,12 @@
 import json
 import os
 from typing import List
-from Elysium_Cli.internal import ConfigNotFound,InvalidArgsFound
+from ElysiumCli.internal import ConfigNotFound,InvalidArgsFound
 import argparse
 import logging
 from pydantic import BaseModel
 import requests
-from Elysium_Config.path_config import BASEDIR, ELYSIUM_PATH
+from ElysiumConfig.path_config import BASEDIR, ELYSIUM_PATH
 from Security.encryption.crypto import generate_key,encrypt
 
 LOGDIR = f"{ELYSIUM_PATH}/Logs/cli"
