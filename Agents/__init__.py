@@ -20,6 +20,7 @@ class Load_Agent():
     if not  priority_provider:     
      random_provider = random.choice(list(providers))
      provider = providers[random_provider] 
+    service_provider = provider
     if not provider:
             raise ProviderNotFound("ProviderDoesnotExistOrNotFound!") 
     models = self.ElysiumModelConfig.load_config()
@@ -27,9 +28,12 @@ class Load_Agent():
     [provider_models.pop(items,None) for items in self.ignoreList] # removing unwanted stuff !
     model = random.choice(list(provider_models))
     models = models.get(provider,{})
-    model_metadata = models.get(model,{}) 
+    model_metadata = models.get(model,{})
+    if model_metadata.get("model_provider",{}):
+        provider = model_metadata.get("model_provider",{})
     return {   
-        "model_provider":provider,
+        "model_provider":service_provider,
+        "provider":provider,
         "model":model_metadata['model_name']
         }
 
