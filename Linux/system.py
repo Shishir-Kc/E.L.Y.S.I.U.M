@@ -40,6 +40,10 @@ class Linux:
                 "used":used.stdout.split("\t")[0],
         }
     def _get_cahe_storage_usage(self,rangeof:int = 25):
+        """ Ueses bash comannd to get .config files/dir storage occupied by application 
+        Note the returned value can either be in MB or GB you need to calculate it
+        it takes argument reangeof:int by default it is 25 
+        """
         storage = []
         application = []
         usage = {}
