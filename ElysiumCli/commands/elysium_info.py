@@ -59,7 +59,7 @@ def elysium_info(args=None):
 
     """)
 
-def check_verison(args=None):
+def check_version(args=None):
     el_updater = Updater()
     update = el_updater.check_update()
     logger.info(f"Update Status : {update}")
