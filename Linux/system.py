@@ -37,9 +37,29 @@ class Linux:
         """ Gets storage occupied by Cache """  
         used =  subprocess.run(['du','-sh',self.cache_dir],capture_output=True,text=True)
         return {
-                "used":used.stdout.split("\t")[0] 
+                "used":used.stdout.split("\t")[0],
         }
-
+    def _get_cahe_storage_usage(self,rangeof:int = 25):
+        storage = []
+        application = []
+        usage = {}
+        used = subprocess.run(
+        f"du -sh {self.cache_dir}/* | sort -rh | head -{rangeof}",
+        shell=True,
+        capture_output=True,
+        text=True
+        )
+        data = used.stdout.split()
+        length =  len(used.stdout.split())
+        for i in range(0,length):
+            if i % 2 ==0:
+                storage.append(data[i])
+            else:
+                application.append(data[i])
+    
+        for i in range(0,len(application)):
+          usage[application[i]] = storage[i]
+        return usage
 
     def get_apps(self):
         """ Gets all the insatlled apps from the Os """
@@ -56,4 +76,4 @@ linux = Linux()
 #     # t.sleep(0.1) 
 #     print(paths)
 # print(linux.get_apps())
-print(linux._get_cache_storage())
+print(linux._get_cahe_storage_usage())
