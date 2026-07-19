@@ -9,15 +9,9 @@ from ElysiumCli.commands.elysium_info import (
     update
 )
 
-def test(args):
-    print("etst")
-
 def build_parser(): 
     parser = argparse.ArgumentParser(prog="E.L.Y.S.I.U.M")
     subparser = parser.add_subparsers(dest="command")
-
-    parser.add_argument("-test",action="store_true")
-    parser.set_defaults(func=test)
 
     version_parser = subparser.add_parser("version")
     version_parser.set_defaults(func=version)
