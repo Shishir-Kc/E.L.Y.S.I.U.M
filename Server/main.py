@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import asyncio
 from pathlib import Path
 import logging 
-
+import os 
  
 testdir = Path.home() / "test" / "server.log"
 
@@ -13,6 +13,7 @@ testdir = Path.home() / "test" / "server.log"
 logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.DEBUG)
 formater = logging.Formatter("| %(asctime)s | %(levelname)s | %(message)s |")
+os.makedirs(testdir,exist_ok=True)
 filehandlar = logging.FileHandler(testdir)
 filehandlar.setFormatter(formater)
 logger.addHandler(filehandlar)
