@@ -60,10 +60,10 @@ class Linux:
                 storage.append(data[i])
             else:
                 application.append(data[i])
-    
-        for i in range(0,len(application)):
-          usage[application[i]] = storage[i]
-        return usage
+
+        for i , _ in  enumerate(application):
+            usage[application[i]] = storage[i]
+        return 
 
     def get_apps(self):
         """ Gets all the insatlled apps from the Os """
@@ -75,11 +75,3 @@ class Linux:
         for file in Path(self.cache_dir).glob("*"):
             yield file
 
-if __name__ == "__main__":
-
-    linux = Linux()
-# for paths in linux.get_cache():
-#     # t.sleep(0.1) 
-#     print(paths)
-# print(linux.get_apps())
-    print(linux._get_cahe_storage_usage())
