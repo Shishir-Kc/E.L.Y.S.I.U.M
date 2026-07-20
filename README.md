@@ -9,6 +9,7 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **AI & Agents**: openai>=2.41.1
 - **Encryption**: cryptography>=49.0.0
 - **Framework**: fastapi[standard]>=0.139.0
+- **System Monitoring**: psutil>=7.2.2
 - **Package Manager**: uv
 
 ### Planned/Aspirational
@@ -17,7 +18,6 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **Task Queue**: Celery with Redis
 - **Email**: aiosmtplib
 - **Audio**: pyaudio, sounddevice, webrtcvad-wheels
-- **System Monitoring**: psutil
 - **Utilities**: numpy, rich, tqdm
 
 ---
@@ -31,6 +31,7 @@ E.L.Y.S.I.U.M/
 ├── uv.lock                    # uv dependency lockfile
 ├── pyproject.toml             # Project metadata and dependencies (uv)
 ├── install.sh                 # Project installation script
+├── main.py                    # Top-level entry point (currently empty/placeholder)
 
 │
 ├── Server/                    # FastAPI web server
@@ -71,8 +72,10 @@ E.L.Y.S.I.U.M/
 │   ├── config.json            # Base system metadata JSON (+ additionals config URL)
 │   └── path_config.json       # Predefined local path settings (+ additionals paths)
 │
-├── Linux/                     # Linux-native functionality (package placeholder)
-│   └── __init__.py            # Package init
+├── Linux/                     # Linux-native system utilities
+│   ├── __init__.py            # Package init
+│   ├── system.py              # Linux class — storage/RAM/cache inspection (psutil)
+│   └── todo.txt               # Planning notes for future Linux-native features
 │
 ├── Security/                  # Security & encryption modules
 │   └── encryption/
@@ -96,9 +99,10 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.6) |
+| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.7) |
 | `uv.lock` | uv dependency lockfile |
 | `install.sh` | Installation and environment setup script |
+| `main.py` | Top-level entry point (currently empty, reserved for future use) |
 | `.python-version` | Specifies Python version (3.12) |
 | `.gitignore` | Git ignore rules |
 
@@ -118,7 +122,7 @@ E.L.Y.S.I.U.M/
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
 | `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict; `update_elysium()` orchestrates the full update (delete old, clone repo, `uv sync`). A module-level `Updater()` runs `update_elysium()` on import. Designed so the agent can self-update at will or when the user prompts it |
-| `config.json` | Base system metadata (version: 0.0.6, status: development, version_name: omega-cooper, stable: "False", `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo, `last_development_changes`) plus `elysium_additionals_config` with download URL |
+| `config.json` | Base system metadata (version: 0.0.7, status: development, version_name: omega-cooper, stable: "False", `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo, `last_development_changes`) plus `elysium_additionals_config` with download URL |
 | `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
 
@@ -126,7 +130,7 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `main.py` | CLI entry point — argparse-based with subcommands (version, status, dev, version_name, is_stable, info, check_version, update) |
+| `main.py` | CLI entry point — argparse program named `romeo` with subcommands (version, status, dev, version_name, is_stable, info, check_version, update) |
 | `internal/core/core.py` | Legacy CLI REPL loop (`:>` prompt) and command routing (currently unused by `main.py`) |
 | `internal/__init__.py` | Exports `ConfigNotFound`, `InvalidArgsFound` exceptions |
 | `internal/Errors/errors.py` | CLI-specific exceptions (`ConfigNotFound`, `InvalidArgsFound`) |
@@ -168,7 +172,9 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `__init__.py` | Package init for the `Linux/` namespace reserved for Linux-native functionality (currently a placeholder) |
+| `__init__.py` | Package init for the `Linux/` namespace reserved for Linux-native functionality |
+| `system.py` | `Linux` class — system metrics via `psutil`/`subprocess`/`shutil`: `_get_storage()`, `_get_system_ram()`, `_get_cache_storage()`, `_get_cahe_storage_usage()`, `get_apps()`, `get_cache()` |
+| `todo.txt` | Planning notes for future Linux-native features (mobile→laptop input sync, sha256 verification, expanded ROMEO CLI, worker/task scheduling, autonomous idle checks, CLI open flag) |
 
 ---
 
