@@ -7,7 +7,7 @@ from pathlib import Path
 import logging 
 import os 
  
-testdir = Path.home() / "test" / "server.log"
+testdir = Path.home() / ".config"/"E.L.Y.S.I.U.M"/"Logs"/"Server"/ "server.log"
 
 
 logger = logging.getLogger("uvicorn.error")
