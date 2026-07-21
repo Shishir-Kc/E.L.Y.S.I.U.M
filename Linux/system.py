@@ -63,7 +63,7 @@ class Linux:
 
         for i , _ in  enumerate(application):
             usage[application[i]] = storage[i]
-        return data 
+        return usage 
 
     def get_apps(self):
         """ Gets all the insatlled apps from the Os """
