@@ -63,7 +63,7 @@ class Linux:
 
         for i , _ in  enumerate(application):
             usage[application[i]] = storage[i]
-        return 
+        return data 
 
     def get_apps(self):
         """ Gets all the insatlled apps from the Os """
@@ -75,3 +75,11 @@ class Linux:
         for file in Path(self.cache_dir).glob("*"):
             yield file
 
+    def delete_cache(self):
+      """ This method will delete the cache that has been piling up ! """ 
+      cahche = self._get_cahe_storage_usage()
+      print(cahche)
+
+
+linux = Linux()
+linux.delete_cache()
