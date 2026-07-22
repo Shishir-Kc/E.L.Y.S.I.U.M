@@ -15,5 +15,8 @@
   },
   "elysium": {
     "config": "ElysiumConfig/config.json"
+  },
+  "voice": {
+    "path": ".config//E.L.Y.S.I.U.M/Config/Voice"
   }
 }
