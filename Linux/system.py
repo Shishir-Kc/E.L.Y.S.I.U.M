@@ -112,6 +112,7 @@ class Linux:
         }
 
     def show_ram_info(self):
+        """ This method will show ram info it returns dict """
         info = self._get_system_ram()
         return info
 
