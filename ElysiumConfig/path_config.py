@@ -10,18 +10,12 @@ from pathlib import Path
 import os
 import json
 import requests
+from logger_config import set_up_logging
+set_up_logging()
 
 BASEDIR = Path(__file__).parent
 GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
 logger = logging.getLogger("ElysiumConfig.path_config")
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="| %(levelname)s | %(asctime)s | %(name)s | %(message)s |" ,
-    handlers=[
-        logging.StreamHandler()
-    ]
-
-)
 
 def get_elysium_path(of:str=""):
     with open(GENERAL_CONFIG_PATH,"r") as data:        
@@ -84,3 +78,20 @@ def download_config(dir:str,url:str,download:bool=True):
     except Exception as e:
         print(f"Some thing went wrong ! {e}")
     return False 
+
+def read_json(path:str) -> dict: #type:ignore
+    """  
+    This function willr read json ONLY ! 
+
+    ARGS:
+     path:str= "/home/user/pathtoajson"
+
+    """
+    try:
+        logger.info(f"Reading JSON {path}")
+        with open(path,'r') as file:
+            data = json.load(file)
+        return data
+    except  Exception as e:
+        logger.error(e)
+        return {"e":e} 
