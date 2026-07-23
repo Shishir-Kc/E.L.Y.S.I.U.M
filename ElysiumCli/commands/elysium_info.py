@@ -6,11 +6,10 @@ from ElysiumConfig.path_config import show_elysium_paths
 import json
 from ElysiumConfig.updater import Updater
 from Linux.system import Linux
-from logger_config import set_up_logging
-set_up_logging()
-import logging
+from logger_config import set_up_logger
 
-logger = logging.getLogger("Commands.elysium_info")
+
+logger = set_up_logger(name="Commands.elysium_info")
 
 linux = Linux()
 
