@@ -8,11 +8,12 @@ from pathlib import Path
 import shutil
 import psutil
 from Server.main import logger,logging
-from logger_config import set_up_logging
-set_up_logging()
-import logging
+from logger_config import set_up_logger
+path = str(Path.home() / "test/test.log")
 
-logger = logging.getLogger("Linux.system")
+
+logger = set_up_logger(name="Linux.system",logpath=path)
+print(logger.handlers)
 
 class Linux:
     def __init__(self) -> None:
@@ -41,7 +42,7 @@ class Linux:
 
     def _get_cache_storage(self):
         """ Gets storage occupied by Cache """
-        logging.info("Getting storage occupied by cache")
+        logger.info("Getting storage occupied by cache")
         used =  subprocess.run(['du','-sh',self.cache_dir],capture_output=True,text=True)
         return {
                 "used":used.stdout.split("\t")[0],
@@ -51,9 +52,6 @@ class Linux:
         Note the returned value can either be in MB or GB you need to calculate it
         it takes argument reangeof:int by default it is 25 
         """
-        storage = []
-        application = []
-        usage = {}
         logging.info(f"Getting application with cache usage of range {rangeof}")
         used = subprocess.run(
         f"du -sh {self.cache_dir}/* | sort -rh | head -{rangeof}",
@@ -65,14 +63,11 @@ class Linux:
         data = used.stdout.split()
         length =  len(used.stdout.split())
         logging.info("Arranging recived data")
-        for i in range(0,length):
-            if i % 2 ==0:
-                storage.append(data[i])
-            else:
-                application.append(data[i])
-
-        for i , _ in  enumerate(application):
-            usage[application[i]] = storage[i]
+        storage = [data[i] for i in range(0,length) if i%2 ==0]
+        application = [data[i] for i in range (0,length) if i%2!=0]
+        usage = {
+            application[i]:storage[i] for i,_ in enumerate(application)  
+        }
         return usage 
 
     def get_apps(self):
