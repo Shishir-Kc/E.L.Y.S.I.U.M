@@ -4,18 +4,15 @@ to download config / to check for path / to get path
 """
 
 
-
-import logging
 from pathlib import Path
 import os
 import json
 import requests
-from logger_config import set_up_logging
-set_up_logging()
+from logger_config import set_up_logger
 
 BASEDIR = Path(__file__).parent
 GENERAL_CONFIG_PATH = f"{BASEDIR}/path_config.json"
-logger = logging.getLogger("ElysiumConfig.path_config")
+logger = set_up_logger(name="ElysiumConfig.path_config")
 
 def get_elysium_path(of:str=""):
     with open(GENERAL_CONFIG_PATH,"r") as data:        
