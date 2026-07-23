@@ -10,11 +10,10 @@ models:
 Models will be selected based on Device spec
 
 """
+from kittentts import KittenTTS
 import requests
-from logger_config import set_up_logging
-import logging
+from logger_config import set_up_logger
 import json
-set_up_logging()
 import os
 from pathlib import Path
 from kittentts import KittenTTS
@@ -22,7 +21,7 @@ from Errors.errors import ConfigFileMissing
 from Linux.system import Linux
 from ElysiumConfig.path_config import read_json
 
-logger = logging.getLogger("ElysiumConfig.voice_config")
+logger = set_up_logger(name="ElysiumConfig.voice_config")
 
 HOME = Path.home()
 CONFIGPATH = Path.home() / ".config/E.L.Y.S.I.U.M/Config/Model"
@@ -33,7 +32,7 @@ class VoiceConfig:
         self.config_download_url = "https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/refs/heads/main/Configs/Voice/voice_config.json"
         self.voice_config_path = f"{CONFIGPATH}/{Path(self.config_download_url).name}" 
     
-    def _get_mode_path(self):
+    def _get_model_path(self):
         """    This is an internal method which will return model path where it is installed """
         try:
          logger.info("Reading voice model path ")
@@ -43,8 +42,8 @@ class VoiceConfig:
          if not model_path:
                 logger.debug("Path for voice model is missing ! ")
                 return
-         logger.info("Got voice model path")
-         return model_path
+         logger.info(f"Got voice model path {HOME /model_path}")
+         return HOME / model_path
         except Exception as e:
             logger.error(e)
             raise ConfigFileMissing(f"missing file 'Config/Model/voice_config.json' ")
@@ -62,7 +61,7 @@ class VoiceConfig:
          with open (self.voice_config_path,"w") as file :
             """ This small pice of code will open/create the Config path and add the config file name as provided in the download url  """
             json.dump(response.json(),file,indent=2)
-         logging.info("Downloaded voice config")
+         logger.info("Downloaded voice config")
          return True 
         except Exception as e:
             logger.error(e)
@@ -76,6 +75,7 @@ class VoiceConfig:
         and it will logically choos e the best model according to the system .
 
         """
+        model_to_be_downloaded = ""
         logger.info("Creating a Linux object ")
         linux = Linux()
         logger.info("Getting ram info ")
@@ -90,6 +90,19 @@ class VoiceConfig:
         logger.info("Got voice config")
         models:dict = data.get("models","")
         for _ ,(model,requirement) in enumerate(models.items()):
-            print(model,requirement)
+            required_ram = requirement.get("required_ram","")
+            if int(required_ram.replace("GB","")) <= total_ram:
+               model_to_be_downloaded = model 
+        logger.info(f"Downloading {model_to_be_downloaded}")
+        try:
+         logger.info("Downloading voice model ")
+         kittentts = KittenTTS(
+           model_name= model_to_be_downloaded, 
+           cache_dir= self._get_model_path(),
+        )
+         logger.info("Model downloaded sucessfully")
+        except Exception as e:
+            logger.error(e)
+
 config = VoiceConfig()
 config.download_model()
