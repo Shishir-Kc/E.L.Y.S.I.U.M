@@ -10,6 +10,9 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **Encryption**: cryptography>=49.0.0
 - **Framework**: fastapi[standard]>=0.139.0
 - **System Monitoring**: psutil>=7.2.2
+- **Audio**: sounddevice>=0.5.5
+- **Hugging Face**: huggingface-hub>=1.24.0
+- **TTS**: kittentts (git source — KittenML/KittenTTS)
 - **Package Manager**: uv
 
 ### Planned/Aspirational
@@ -17,7 +20,6 @@ E.L.Y.S.I.U.M is a modular, AI-augmented home server and CLI toolkit built with 
 - **AI & Agents**: LangChain, LangChain-Groq, LangChain-Ollama, LangGraph
 - **Task Queue**: Celery with Redis
 - **Email**: aiosmtplib
-- **Audio**: pyaudio, sounddevice, webrtcvad-wheels
 - **Utilities**: numpy, rich, tqdm
 
 ---
@@ -29,8 +31,10 @@ E.L.Y.S.I.U.M/
 ├── .python-version            # Python version specification (3.12)
 ├── .gitignore                 # Git ignore rules
 ├── uv.lock                    # uv dependency lockfile
+├── requirements.txt           # pip-style resolved dependency lockfile
 ├── pyproject.toml             # Project metadata and dependencies (uv)
 ├── install.sh                 # Project installation script
+├── logger_config.py           # Shared logging utility (set_up_logger)
 ├── main.py                    # Top-level entry point (currently empty/placeholder)
 
 │
@@ -42,9 +46,11 @@ E.L.Y.S.I.U.M/
 ├── Agents/                    # AI Agent implementations
 │   ├── __init__.py            # Load_Agent class (config initialization, model roulette)
 │   ├── agent.py               # Agents class (deep, web, worker, council stubs)
-│   └── nvidia.py              # NvidiaAgent class (NVIDIA LLM via OpenAI SDK)
+│   ├── nvidia.py              # NvidiaAgent class (NVIDIA LLM via OpenAI SDK)
+│   └── voice.py               # Voice/ LocalModel stub (placeholder)
 │
 ├── ElysiumCli/                # Python CLI tool
+│   ├── __init__.py            # Package init
 │   ├── main.py                # CLI entry point
 │   ├── Readme.md              # CLI documentation
 │   ├── Config/                # CLI configuration
@@ -66,16 +72,16 @@ E.L.Y.S.I.U.M/
 ├── ElysiumConfig/             # Configuration management
 │   ├── __init__.py            # Validates ~/.config/E.L.Y.S.I.U.M/ existence on import
 │   ├── model_config.py        # AI model configuration manager (with encryption)
-│   ├── path_config.py         # Path mapping config loader & GitHub downloader
+│   ├── path_config.py         # Path mapping config loader, GitHub downloader, read_json
 │   ├── additionals.py         # Additionals plug-and-play skill/tool downloader & updater
 │   ├── updater.py             # Updater class — E.L.Y.S.I.U.M version check (local vs cloud config)
+│   ├── voice_config.py        # VoiceConfig — KittenTTS model download based on system RAM
 │   ├── config.json            # Base system metadata JSON (+ additionals config URL)
 │   └── path_config.json       # Predefined local path settings (+ additionals paths)
 │
 ├── Linux/                     # Linux-native system utilities
 │   ├── __init__.py            # Package init
-│   ├── system.py              # Linux class — storage/RAM/cache inspection (psutil)
-│   └── todo.txt               # Planning notes for future Linux-native features
+│   └── system.py              # Linux class — storage/RAM/cache inspection (psutil)
 │
 ├── Security/                  # Security & encryption modules
 │   └── encryption/
@@ -99,9 +105,11 @@ E.L.Y.S.I.U.M/
 
 | File | Purpose |
 |------|---------|
-| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.7) |
+| `pyproject.toml` | Project metadata (name: elysium, version: 0.0.8) |
 | `uv.lock` | uv dependency lockfile |
+| `requirements.txt` | pip-style resolved dependency lockfile (134 packages) |
 | `install.sh` | Installation and environment setup script |
+| `logger_config.py` | Shared logging utility — `set_up_logger(name, logpath, level)` returns a logger with file + stream handlers |
 | `main.py` | Top-level entry point (currently empty, reserved for future use) |
 | `.python-version` | Specifies Python version (3.12) |
 | `.gitignore` | Git ignore rules |
@@ -122,14 +130,16 @@ E.L.Y.S.I.U.M/
 | `model_config.py` | Manages AI model settings, API key injection (with Fernet encryption), config download from GitHub |
 | `additionals.py` | Additionals plug-and-play system: downloads/updates config from `Elysium_additionals` repo, version checks, auto-updates on missing config |
 | `updater.py` | `Updater` class — compares local `config.json` against the cloud copy fetched from the `url` field. `_read_local_config()` reads `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json`; `_get_cloud_config()` downloads the cloud config; `check_update()` compares versions and returns an `updates` dict; `update_elysium()` orchestrates the full update (delete old, clone repo, `uv sync`). A module-level `Updater()` runs `update_elysium()` on import. Designed so the agent can self-update at will or when the user prompts it |
-| `config.json` | Base system metadata (version: 0.0.7, status: development, version_name: omega-cooper, stable: "False", `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo, `last_development_changes`) plus `elysium_additionals_config` with download URL |
-| `path_config.py` | Core path management, path listing, additionals path config, and GitHub config downloader |
+| `config.json` | Base system metadata (version: 0.0.8, status: development, version_name: omega-cooper, stable: "False", `url` pointing to the raw cloud `config.json`, `repo` pointing to the GitHub repo, `last_development_changes`: 21 July w30 2026) plus `elysium_additionals_config` with download URL |
+| `path_config.py` | Core path management, path listing, additionals path config, GitHub config downloader, and `read_json()` helper |
 | `path_config.json` | Predefined directory path mappings (Root, Log, Skill, Memory, Config) and additionals paths (Root, Memory, Config) |
+| `voice_config.py` | `VoiceConfig` class — downloads voice model config from GitHub, auto-selects KittenTTS model based on system RAM via `Linux.show_ram_info()`, downloads model via KittenTTS SDK |
 
 ### `ElysiumCli/` - CLI Tool
 
 | File | Purpose |
 |------|---------|
+| `__init__.py` | Package init for the `ElysiumCli/` namespace |
 | `main.py` | CLI entry point — argparse program named `romeo` with subcommands (version, status, dev, version_name, is_stable, info, check_version, update) |
 | `internal/core/core.py` | Legacy CLI REPL loop (`:>` prompt) and command routing (currently unused by `main.py`) |
 | `internal/__init__.py` | Exports `ConfigNotFound`, `InvalidArgsFound` exceptions |
@@ -146,6 +156,7 @@ E.L.Y.S.I.U.M/
 | `__init__.py` | `Load_Agent` class: initializes with `Elysium_Model_Config`, provides `model_roulet(priority_provider)` for random model selection and `model_key(provider, model)` for API key retrieval |
 | `agent.py` | `Agents` class stub with methods: `deep_agent`, `web_agent`, `worker_agent`, `agents_council`, `loop` |
 | `nvidia.py` | `NvidiaAgent` class: uses `OpenAI` SDK with `base_url="https://integrate.api.nvidia.com/v1"`, supports chat with `reasoning={'effort': 'high'}` |
+| `voice.py` | `LocalModel` stub — placeholder for voice/TTS functionality |
 
 ### `Security/` - Security Modules
 
@@ -174,7 +185,6 @@ E.L.Y.S.I.U.M/
 |------|---------|
 | `__init__.py` | Package init for the `Linux/` namespace reserved for Linux-native functionality |
 | `system.py` | `Linux` class — system metrics via `psutil`/`subprocess`/`shutil`: `_get_storage()`, `_get_system_ram()`, `_get_cache_storage()`, `_get_cahe_storage_usage()`, `get_apps()`, `get_cache()` |
-| `todo.txt` | Planning notes for future Linux-native features (mobile→laptop input sync, sha256 verification, expanded ROMEO CLI, worker/task scheduling, autonomous idle checks, CLI open flag) |
 
 ---
 
@@ -199,37 +209,42 @@ E.L.Y.S.I.U.M/
    - `insert_api_key(provider_name, model_name, api_key)` generates encryption key and stores encrypted API key
    - `load_model(required_provider, required_model)` returns decrypted API key with provider/model info
 
-4. **FastAPI Server Flow** (`Server/main.py`):
+4. **Shared Logger Utility** (`logger_config.py`):
+   - `set_up_logger(name, logpath, level)` creates a logger with file + stream handlers
+   - Auto-creates parent directories for log files
+   - Used by `ElysiumConfig/path_config.py` and `ElysiumConfig/voice_config.py`
+
+5. **FastAPI Server Flow** (`Server/main.py`):
    - `lifespan` context manager logs server boot on startup
    - `GET /` returns `{"status": 200}` health check (uses `status.HTTP_200_OK`)
-   - `GET /read` streams log file via SSE (`text/event-stream`) using `StreamingResponse` + `logstream()` generator; sources from `~/test/server.log`
+   - `GET /read` streams log file via SSE (`text/event-stream`) using `StreamingResponse` + `logstream()` generator; sources from `~/.config/E.L.Y.S.I.U.M/Logs/Server/server.log`
    - `WebSocket /ws` accepts connections and echoes received text with `"Echo = {data}"` prefix
    - `routes/` directory reserved for future API route blueprints
 
-5. **AI Agent Flow** (`Agents/__init__.py`):
+6. **AI Agent Flow** (`Agents/__init__.py`):
    - `Load_Agent` class (defined in `Agents/__init__.py`, re-exported via `Agents/nvidia.py`) initializes `Elysium_Model_Config` on instantiation
    - `model_roulet(priority_provider="")` returns a random model/provider pair, with optional priority provider
    - `model_key(provider, model)` retrieves and decrypts the API key via `getkey()` + `decrypt()`
 
-6. **NvidiaAgent Flow** (`Agents/nvidia.py`):
+7. **NvidiaAgent Flow** (`Agents/nvidia.py`):
    - `NvidiaAgent.__init__(agent)` calls `model_roulet(priority_provider="nvidia")` to select a random NVIDIA model
    - Creates an `OpenAI` client configured with `base_url="https://integrate.api.nvidia.com/v1"`
    - `chat(prompt)` calls the OpenAI Responses API with `reasoning={'effort': 'high'}` and returns `response.output_text`
 
-7. **Encryption Flow** (`Security/encryption/crypto.py`):
+8. **Encryption Flow** (`Security/encryption/crypto.py`):
    - `generate_key(module, provider_name, model_name)` creates a Fernet key, stores it in `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
    - Duplicate provider+model detection updates existing keys rather than creating duplicates
    - `encrypt(item, key)` / `decrypt(item, key)` wrap Fernet symmetric encryption
    - `getkey(provider_name, model_name)` looks up key from `keys.json` by provider+model; raises `KeysNotFound` if missing
    - Used by `model_config.py` and `cli_config.py` to encrypt stored API keys
 
-8. **Worker Flow** (`Workers/worker.py`):
+9. **Worker Flow** (`Workers/worker.py`):
    - On import, auto-creates `~/.config/E.L.Y.S.I.U.M/Config/worker/` and `Logs/worker/` directories
    - `worker` class with stub methods: `check_config`, `add_config`, `stats`, `load_config`
    - `workers_preview.json` defines startup behavior (id, execution_time, repeat)
    - **Note**: Contains stale imports (`Elysium_Config` instead of `ElysiumConfig`) — currently non-functional without fixes
 
-9. **Updater Flow** (`ElysiumConfig/updater.py`):
+10. **Updater Flow** (`ElysiumConfig/updater.py`):
    - `Updater.__init__()` sets `LOCALCONFIG` to `~/.E.L.Y.S.I.U.M/ElysiumConfig/config.json` and eagerly fetches `CLOUDCONFIG` via `_get_cloud_config()`
    - `_read_local_config()` loads the local `config.json`
    - `_get_cloud_config()` reads the `elysium.url` field from the local config and `requests.get()`s the cloud `config.json`; returns `{}` on any error (logged at DEBUG)
@@ -238,7 +253,7 @@ E.L.Y.S.I.U.M/
    - A module-level `updater = Updater(); updater.update_elysium()` runs at import time, so an auto-update fires on every instance the module is loaded
    - Designed so the AI agent can call `Updater` for autonomous self-updates, or be triggered by user prompts
 
-10. **Additionals Flow** (`ElysiumConfig/additionals.py`):
+11. **Additionals Flow** (`ElysiumConfig/additionals.py`):
 
    **Overview** — The Additionals system is a plug-and-play skill/tool downloader that lets E.L.Y.S.I.U.M learn new capabilities at runtime. Additionals are defined in a separate [`Elysium_additionals`](https://github.com/Shishir-Kc/Elysium_additionals) repo.
 
@@ -295,6 +310,58 @@ E.L.Y.S.I.U.M/
    - `AdditionalsNotFound` — raised if requested additional name is not in the registry
    - `AdditionalsNotInstalled` — raised when `update=True` but additional hasn't been downloaded yet
    - Network errors from `download_config()` on timeouts or HTTP failures
+
+12. **Voice Config Flow** (`ElysiumConfig/voice_config.py`):
+
+   **Overview** — The Voice Config system auto-downloads a KittenTTS model matched to the system's available RAM. It runs at import time via a module-level `VoiceConfig()` singleton.
+
+   **Import-time Initialization** (runs automatically when the module is first imported):
+   - `VoiceConfig.__init__()` sets `config_download_url` pointing to a GitHub-hosted `voice_config.json`
+   - Stores the downloaded config at `~/.config/E.L.Y.S.I.U.M/Config/Model/voice_config.json`
+   - A module-level `config = VoiceConfig(); config.download_model()` runs on import
+
+   **Download Flow:**
+   ```
+   VoiceConfig.download()
+       │
+       ▼
+   GET voice_config.json from GitHub raw URL
+       │
+       ▼
+   Write to ~/.config/.../Config/Model/voice_config.json
+       │
+       ▼
+   VoiceConfig.download_model()
+       │
+       ├── Linux().show_ram_info() → total RAM in GB
+       │
+       ▼
+   Read voice_config.json → iterate models
+       │
+       ▼
+   Select first model where required_ram ≤ total_ram
+       │
+       ▼
+   KittenTTS(model_name=..., cache_dir=model_path)
+   ```
+
+   **`VoiceConfig` Class Methods:**
+
+   | Method | Description |
+   |--------|-------------|
+   | `download()` | Downloads `voice_config.json` from GitHub to `Config/Model/`. Returns `True` on success |
+   | `download_model()` | Reads RAM via `Linux.show_ram_info()`, selects the best-fit model from config, downloads via `KittenTTS` SDK |
+   | `_get_model_path()` | Internal — reads the `path` field from `voice_config.json` and resolves it relative to `$HOME` |
+
+   **Model Selection Logic:**
+   - Models are ordered largest to smallest in `voice_config.json`
+   - The first model whose `required_ram` (e.g. `"8GB"`) ≤ total system RAM is selected
+   - Models available: `kitten-tts-mini` (80M), `kitten-tts-micro` (40M), `kitten-tts-nano` (15M)
+
+   **Error Handling:**
+   - `ConfigFileMissing` — raised if `voice_config.json` is missing from the config path
+   - Network errors from `requests.get()` on the config download
+   - KittenTTS download exceptions logged and suppressed
 
 ---
 
@@ -389,6 +456,7 @@ uv run celery -A Elysium_Celery.config worker --loglevel=info
 - **Model Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Config/Model/model_config.json` via `path_config.py`
 - **Server Entry**: `Server/main.py`
 - **Server Routes**: `Server/routes/` (placeholder for future API blueprints)
+- **Voice Config**: stored at `~/.config/E.L.Y.S.I.U.M/Config/Model/voice_config.json` — downloaded from GitHub via `VoiceConfig.download()`
 - **CLI Config**: dynamically resolved to `~/.config/E.L.Y.S.I.U.M/Config/cli/config.json` via `cli_config.py`
 - **Encryption Keys**: stored at `~/.config/E.L.Y.S.I.U.M/Config/Security/encryption/keys.json`
 - **Worker Config**: stored at `~/.config/E.L.Y.S.I.U.M/Config/worker/`
