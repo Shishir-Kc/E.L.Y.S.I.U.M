@@ -51,7 +51,7 @@ E.L.Y.S.I.U.M/
 │
 ├── ElysiumCli/                # Python CLI tool
 │   ├── __init__.py            # Package init
-│   ├── main.py                # CLI entry point
+│   ├── main.py                # CLI entry point (argparse program `romeo` with subcommands)
 │   ├── Readme.md              # CLI documentation
 │   ├── Config/                # CLI configuration
 │   │   ├── __init__.py
@@ -60,7 +60,7 @@ E.L.Y.S.I.U.M/
 │   │   └── config.log         # CLI activity log
 │   ├── commands/              # CLI commands
 │   │   ├── __init__.py        # Package init
-│   │   └── elysium_info.py    # Version/status/info/update commands
+│   │   └── elysium_info.py    # Version/status/info/update/ram-info/cache-info/rm-cache commands
 │   ├── external/              # External integrations (placeholder)
 │   └── internal/              # Core modules
 │       ├── __init__.py        # Exports custom exceptions
@@ -81,7 +81,7 @@ E.L.Y.S.I.U.M/
 │
 ├── Linux/                     # Linux-native system utilities
 │   ├── __init__.py            # Package init
-│   └── system.py              # Linux class — storage/RAM/cache inspection (psutil)
+│   └── system.py              # Linux class — storage/RAM/cache inspection and management (psutil)
 │
 ├── Security/                  # Security & encryption modules
 │   └── encryption/
@@ -140,14 +140,14 @@ E.L.Y.S.I.U.M/
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Package init for the `ElysiumCli/` namespace |
-| `main.py` | CLI entry point — argparse program named `romeo` with subcommands (version, status, dev, version_name, is_stable, info, check_version, update) |
+| `main.py` | CLI entry point — argparse program named `romeo` with subcommands: `version`, `status`, `dev`, `version-name`, `is-stable`, `info`, `check-version`, `update`, `ram-info`, `cache-info`, `rm-cache` |
 | `internal/core/core.py` | Legacy CLI REPL loop (`:>` prompt) and command routing (currently unused by `main.py`) |
 | `internal/__init__.py` | Exports `ConfigNotFound`, `InvalidArgsFound` exceptions |
 | `internal/Errors/errors.py` | CLI-specific exceptions (`ConfigNotFound`, `InvalidArgsFound`) |
 | `Config/cli_config.py` | CLI-specific configuration management with Pydantic validation, encryption, argparse flags (`-make`, `-over_ride`, `-add_config`) |
 | `Config/config.log` | CLI activity log |
 | `commands/__init__.py` | Package init |
-| `commands/elysium_info.py` | Version/status/info/update command implementations (reads `config.json`, calls `Updater`) |
+| `commands/elysium_info.py` | Command implementations: version, status, dev, version-name, is-stable, info, check-version, update, ram-info, cache-info, rm-cache (reads `config.json`, calls `Updater`) |
 
 ### `Agents/` - AI Agents
 
@@ -184,7 +184,7 @@ E.L.Y.S.I.U.M/
 | File | Purpose |
 |------|---------|
 | `__init__.py` | Package init for the `Linux/` namespace reserved for Linux-native functionality |
-| `system.py` | `Linux` class — system metrics via `psutil`/`subprocess`/`shutil`: `_get_storage()`, `_get_system_ram()`, `_get_cache_storage()`, `_get_cahe_storage_usage()`, `get_apps()`, `get_cache()` |
+| `system.py` | `Linux` class — system metrics and management via `psutil`/`subprocess`/`shutil`: `_get_storage()`, `_get_system_ram()`, `_get_cache_storage()`, `_get_cahe_storage_usage()`, `get_apps()`, `get_cache()`, `delete_cache()`, `show_cache_info()`, `show_ram_info()` |
 
 ---
 
@@ -193,8 +193,7 @@ E.L.Y.S.I.U.M/
 1. **CLI Startup** (`ElysiumCli/main.py`):
    - Builds an `argparse` parser with subcommands via `build_parser()`
    - Imports from `ElysiumCli.commands.elysium_info` for all subcommand implementations
-   - Supports 8 subcommands: `version`, `status`, `dev`, `version_name`, `is_stable`, `info`, `check_version`, `update`
-   - Also supports a `-test` debug flag
+   - Supports 11 subcommands: `version`, `status`, `dev`, `version-name`, `is-stable`, `info`, `check-version`, `update`, `ram-info`, `cache-info`, `rm-cache`
    - The legacy REPL (`internal/core/core.py` with `:>` prompt, `-chat`, `-download_config`, `-insert_api`) is no longer wired to the entry point
 
 2. **Configuration Initialization** (`ElysiumConfig/__init__.py`):
@@ -387,14 +386,14 @@ python ElysiumCli/main.py <subcommand>
 | `version` | Display current version from `config.json` |
 | `status` | Display development status |
 | `dev` | Display last development changes date |
-| `version_name` | Display version name (e.g. omega-cooper) |
-| `is_stable` | Check if current version is stable |
+| `version-name` | Display version name (e.g. omega-cooper) |
+| `is-stable` | Check if current version is stable |
 | `info` | Print all metadata (version, name, stable, dev changes) |
-| `check_version` | Check cloud for available updates |
+| `check-version` | Check cloud for available updates |
 | `update` | Perform a full self-update (delete old, clone repo, `uv sync`) |
-
-**Debug flag:**
-- `-test` — Prints "etst" (debug/test flag)
+| `ram-info` | Display system RAM and swap usage |
+| `cache-info` | Display current cache usage by application |
+| `rm-cache` | Remove cached files (requires sudo) |
 
 > **Note**: `[project.scripts]` in `pyproject.toml` is currently empty. No `uv run` shortcut available yet.
 
