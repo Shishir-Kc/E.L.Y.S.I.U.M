@@ -24,6 +24,9 @@ logging.basicConfig(
     ]
 )
 
+def converson(v):
+    return tuple(map(int,v.split(".")))    
+
 class Updater:
     def __init__(self) -> None: 
         self.ELYSIUM_ROOT = Path.home() / ".E.L.Y.S.I.U.M"
@@ -60,7 +63,7 @@ class Updater:
        CloudConfig = self._get_cloud_config()
        LocalMetadata = Localconfig.get("elysium",{})
        CloudMetadata = CloudConfig.get("elysium",{})
-       if LocalMetadata['version'] < CloudMetadata['version']:
+       if converson(LocalMetadata['version']) < converson(CloudMetadata['version']):
             logger.info("Update is Available")
             updates["version"] = CloudMetadata['version']
             if LocalMetadata['version_name'] != CloudMetadata['version_name']:
