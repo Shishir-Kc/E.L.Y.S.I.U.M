@@ -19,8 +19,6 @@ import  logging
 import os
 from pathlib import Path 
 import json
-from threading import local
-from time import sleep
 from Errors.errors import AdditionalsNotFound, AdditionalsNotInstalled, ConfigFileMissing
 from .path_config import (download_config,show_elysium_paths,
 check_for_eLysium_path,BASEDIR)
