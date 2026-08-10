@@ -9,8 +9,8 @@ import shutil
 import psutil
 from Server.main import logger,logging
 from logger_config import set_up_logger
+#i have made this changes using mobile
 path = str(Path.home() / "test/test.log")
-
 
 logger = set_up_logger(name="Linux.system",logpath=path)
 print(logger.handlers)
