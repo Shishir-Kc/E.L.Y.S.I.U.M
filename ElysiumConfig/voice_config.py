@@ -104,5 +104,3 @@ class VoiceConfig:
         except Exception as e:
             logger.error(e)
 
-config = VoiceConfig()
-config.download_model()
