@@ -10,10 +10,7 @@ i need to make it so that new work can be implemented dynamicay or by an agent w
 also make the code clean ! : ) 
 
 
-
-
 """
-
 
 
 worker_path = f"{ELYSIUM_PATH}/Config/worker"
