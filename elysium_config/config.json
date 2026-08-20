@@ -1,0 +1,15 @@
+{
+  "elysium": {
+    "version": "0.0.8",
+    "status": "development",
+    "last_development_changes": "21 July w30 2026",
+    "version_name": "omega-cooper",
+    "stable": "False",
+    "url": "https://raw.githubusercontent.com/Shishir-Kc/E.L.Y.S.I.U.M/refs/heads/main/ElysiumConfig/config.json",
+    "repo": "https://github.com/Shishir-Kc/E.L.Y.S.I.U.M"
+  },
+  "elysium_additionals_config": {
+    "download_url": "https://raw.githubusercontent.com/Shishir-Kc/Elysium_additionals/refs/heads/main/config.json"
+  },
+  "debug":true
+}
