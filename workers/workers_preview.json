@@ -1,0 +1,7 @@
+{
+  "start_up": {
+    "id": "some_id",
+    "execution_time": "on_startup",
+    "repeat": true
+  }
+}
