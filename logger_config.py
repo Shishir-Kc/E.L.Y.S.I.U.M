@@ -1,5 +1,13 @@
 import logging
+
 from pathlib import Path
+
+
+"""
+Note need the logger file will have an aditional filed called DEBUG
+
+"""
+
 
 def set_up_logger(name: str, logpath: str="", level: str = "DEBUG") -> logging.Logger:
     """
