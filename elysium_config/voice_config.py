@@ -9,6 +9,8 @@ models:
 
 Models will be selected based on Device spec
 
+lcoal voice model depende on Internet for some reason 
+
 """
 import json
 import os
