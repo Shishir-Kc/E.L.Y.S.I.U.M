@@ -47,9 +47,9 @@ class VoiceConfig:
                 return
          logger.info(f"Got voice model path {HOME /model_path}")
          return HOME / model_path
-        except Exception as e:
+        except OSError as e:
             logger.error(e)
-            raise ConfigFileMissing(f"missing file 'Config/Model/voice_config.json' ")
+            raise ConfigFileMissing("missing file 'Config/Model/voice_config.json' ")
 
     def download(self)->bool:
         """ 
@@ -66,7 +66,7 @@ class VoiceConfig:
             json.dump(response.json(),file,indent=2)
          logger.info("Downloaded voice config")
          return True 
-        except Exception as e:
+        except OSError as e:
             logger.error(e)
             return False
     
@@ -104,5 +104,5 @@ class VoiceConfig:
            cache_dir= self._get_model_path(),
         )
          logger.info("Model downloaded sucessfully")
-        except Exception as e:
+        except requests.exceptions as e:
             logger.error(e)
